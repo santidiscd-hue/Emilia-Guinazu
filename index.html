@@ -1128,11 +1128,14 @@ async function finishRound() {
 
   if (!already && !Q.practice) {
     if (!db.results) db.results = [];
-    db.results.push({
-      name:       user.name,
-      roundId:    Q.round.id,
-      roundLabel: Q.round.label,
-      score:      Q.score,
+    const cycleNum = await getCycleNum();
+
+db.results.push({
+  name: user.name,
+  cycle: cycleNum, // 👈 PARCHE CLAVE
+  roundId: Q.round.id,
+  roundLabel: Q.round.label,
+  score: Q.score,
       correct:    Q.correct,
       total:      Q.questions.length,
       date:       new Date().toLocaleDateString('es-AR'),
