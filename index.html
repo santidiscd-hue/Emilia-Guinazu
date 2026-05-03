@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>PreguntaQuiz</title>
+<title>Quiz Escolar</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ── BASE ── */
@@ -45,7 +45,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .screen { display: none; min-height: calc(100vh - 52px); }
 .screen.on { display: block; }
 .wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
-.wrap-wide { max-width: 800px; margin: 0 auto; padding: 24px 16px 48px; }
+.wrap-wide { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
 
 /* ── TYPOGRAPHY ── */
 .pg-title { font-size: 1.75rem; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 6px; }
@@ -80,7 +80,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 .field { margin-bottom: 16px; }
 .field label { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
 .field input, .field textarea, .field select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--r); font-family: 'Inter', sans-serif; font-size: .93rem; color: var(--text); background: var(--white); outline: none; transition: border-color .15s; }
-.field input:focus, .field textarea:focus { border-color: var(--text); }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--text); }
 
 /* ── ALERTS ── */
 .alert { padding: 12px 14px; border-radius: var(--r); font-size: .85rem; font-weight: 500; margin-bottom: 14px; line-height: 1.45; }
@@ -96,7 +96,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color
 hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
 /* ── ROUND CHIPS ── */
-.rounds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.rounds-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
 .round-chip { border: 1.5px solid var(--border); border-radius: var(--r); padding: 12px; background: var(--white); text-align: center; }
 .round-chip.active-round { border-color: var(--green); background: var(--green-bg); }
 .round-chip.done-round   { opacity: .5; }
@@ -135,17 +135,17 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 /* ── RANKING TABLE ── */
 .rtable { width: 100%; border-collapse: collapse; }
 .rtable th { padding: 9px 12px; font-size: .68rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); text-align: left; background: var(--bg); }
-.rtable td { padding: 12px; font-size: .88rem; border-bottom: 1px solid var(--bg); }
+.rtable td { padding: 12px 12px; font-size: .88rem; border-bottom: 1px solid var(--bg); }
 .rtable tr:last-child td { border-bottom: none; }
 .rtable tbody tr:hover td { background: var(--bg); }
 .rtable tr.me td { background: #eff6ff; }
 .pts-cell { font-family: 'Roboto Mono', monospace; font-weight: 500; }
 .medal { font-size: .95rem; }
 .badge { font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
-.badge-gold { background: #fef9c3; color: #92400e; }
-.badge-ok   { background: var(--green-bg); color: var(--green); }
-.badge-mid  { background: var(--blue-bg); color: var(--blue); }
-.badge-low  { background: var(--bg); color: var(--muted2); }
+.badge-gold   { background: #fef9c3; color: #92400e; }
+.badge-ok     { background: var(--green-bg); color: var(--green); }
+.badge-mid    { background: var(--blue-bg); color: var(--blue); }
+.badge-low    { background: var(--bg); color: var(--muted2); }
 
 /* ── SESSION DOTS ── */
 .s-dots { display: inline-flex; gap: 3px; align-items: center; vertical-align: middle; }
@@ -168,7 +168,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .dtable tr:last-child td { border-bottom: none; }
 .dtable tbody tr:hover td { background: var(--bg); }
 .tag { font-size: .68rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--bg); border: 1px solid var(--border); color: var(--muted); }
-.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .stat-box { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
 .stat-val { font-family: 'Roboto Mono', monospace; font-size: 1.7rem; font-weight: 500; }
 .stat-lbl { font-size: .65rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted2); margin-top: 2px; }
@@ -186,8 +186,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 /* ── WINNERS ── */
 .winner-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .winner-row:last-child { border-bottom: none; }
-.winner-cycle { font-family: 'Roboto Mono', monospace; font-size: .72rem; color: var(--muted2); width: 50px; flex-shrink: 0; }
-.winner-name { flex: 1; font-weight: 600; min-width: 80px; }
+.winner-cycle { font-family: 'Roboto Mono', monospace; font-size: .72rem; color: var(--muted2); width: 50px; }
+.winner-name { flex: 1; font-weight: 600; min-width: 100px; }
 .winner-pts { font-family: 'Roboto Mono', monospace; font-size: .88rem; color: #92400e; font-weight: 500; }
 
 /* ── TOAST ── */
@@ -205,7 +205,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .fade-in { animation: fadeUp .3s ease both; }
 
-/* ── HOW BOX ── */
+/* ── INSTRUCTIONS BOX ── */
 .how-box { background: var(--blue-bg); border: 1px solid var(--blue-bd); border-radius: var(--r-lg); padding: 18px; margin-bottom: 20px; }
 .how-box h3 { font-size: .88rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
 .how-box ol { padding-left: 18px; }
@@ -214,16 +214,20 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 /* ── COUNTDOWN ── */
 .cd-num { font-family: 'Roboto Mono', monospace; font-size: 1.4rem; font-weight: 500; color: var(--text); }
 
-/* ── QUESTION BANK EDITOR ── */
-.bank-cycle-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
-.bank-cycle-header h4 { font-size:.82rem; font-weight:700; }
-.bank-tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+/* ── ADMIN ROUNDS EDITOR ── */
+.round-editor-row { display: grid; grid-template-columns: auto 1fr 1fr auto; gap: 8px; align-items: center; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; }
+.round-editor-row .re-num { font-family: 'Roboto Mono', monospace; font-size: .75rem; color: var(--muted2); font-weight: 600; width: 32px; }
 
-/* ── MOBILE ── */
+/* ── MOBILE TWEAKS ── */
 @media (max-width: 480px) {
   .pg-title { font-size: 1.45rem; }
   .q-text { font-size: 1.05rem; }
-  .dtable { display:block; overflow-x:auto; }
+  .rounds-grid { grid-template-columns: 1fr 1fr; }
+  .dtable thead { display: none; }
+  .dtable tr { display: block; border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; padding: 8px; }
+  .dtable td { display: flex; justify-content: space-between; border-bottom: 1px solid var(--bg); padding: 6px 4px; font-size: .82rem; }
+  .dtable td::before { content: attr(data-label); font-weight: 600; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; margin-right: 8px; }
+  .round-editor-row { grid-template-columns: auto 1fr; }
 }
 @media (max-width: 400px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
@@ -234,11 +238,11 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 
 <!-- HEADER -->
 <header class="hdr">
-  <div class="hdr-logo">Pregunta<span>Quiz</span></div>
+  <div class="hdr-logo">Quiz <span>Escolar</span></div>
   <div class="hdr-right">
     <span class="hdr-user" id="hdr-user"></span>
-    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;display:none" id="hdr-rank-btn" onclick="showScreen('ranking')">Ranking</button>
-    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;display:none" id="hdr-logout-btn" onclick="doLogout()">Salir</button>
+    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-rank-btn" onclick="showScreen('ranking')">Ranking</button>
+    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-logout-btn" onclick="doLogout()">Salir</button>
     <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-login-btn" onclick="showScreen('login')">Entrar</button>
     <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;color:var(--muted2);" onclick="showScreen('admin-login')" title="Admin">⚙</button>
   </div>
@@ -249,21 +253,23 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   <div class="wrap">
     <div class="fade-in">
       <p style="font-size:.75rem;font-weight:600;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Proyecto escolar</p>
-      <h1 class="pg-title">Pregunta<br>Quiz 🎓</h1>
-      <p class="pg-sub" id="home-subtitle">Respondé 3 preguntas cada Lunes y Miércoles durante 2 semanas. El jugador con más puntos gana el premio el viernes de la segunda semana.</p>
+      <h1 class="pg-title" id="home-title">Quiz<br>Académico 🎓</h1>
+      <p class="pg-sub" id="home-desc">Respondé preguntas en cada ronda. El jugador con más puntos gana el campeonato.</p>
+
       <div class="how-box">
         <h3>📋 ¿Cómo funciona?</h3>
         <ol>
           <li>Creá tu cuenta con nombre y contraseña (solo una vez).</li>
-          <li>Cada Lunes y Miércoles se habilita una ronda nueva con 3 preguntas.</li>
+          <li>Cada ronda tiene 2 preguntas disponibles en su fecha.</li>
           <li>Podés responder hasta que se abra la ronda siguiente.</li>
           <li>Solo se guarda tu <strong>primera</strong> respuesta por ronda.</li>
-          <li>El viernes de la 2ª semana se declara el campeón con más puntos.</li>
-          <li>Luego todo se reinicia y empieza un nuevo campeonato.</li>
+          <li>Al final del campeonato se declara al campeón con más puntos.</li>
         </ol>
       </div>
+
       <div class="rounds-grid" id="home-rounds"></div>
       <div id="home-status" style="margin-bottom:16px;"></div>
+
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-primary btn-full btn-lg" onclick="showScreen('login')">Ingresar a mi cuenta →</button>
         <button class="btn btn-outline btn-full" onclick="showScreen('register')">Crear cuenta nueva</button>
@@ -279,14 +285,16 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     <div class="fade-in">
       <button class="btn btn-ghost btn-sm" onclick="showScreen('home')" style="margin-bottom:16px;">← Volver</button>
       <h1 class="pg-title" style="font-size:1.5rem;">Crear cuenta</h1>
-      <p class="pg-sub">Tu cuenta se guarda para todos los dispositivos. Usá siempre el mismo nombre y contraseña.</p>
-      <div class="alert alert-blue" style="margin-bottom:20px;"><strong>Importante:</strong> Recordá tu nombre y contraseña exactos — los necesitás en cada dispositivo.</div>
+      <p class="pg-sub">Tu cuenta se guarda en este dispositivo. Usá siempre el mismo nombre y contraseña para acumular tus puntos.</p>
+      <div class="alert alert-blue" style="margin-bottom:20px;">
+        <strong>Importante:</strong> Recordá tu nombre y contraseña.
+      </div>
       <div class="card card-p">
         <div class="field"><label>Nombre completo</label><input id="reg-name" type="text" placeholder="Ej: Valentina García" maxlength="30" autocomplete="name"></div>
         <div class="field"><label>Contraseña</label><input id="reg-pass" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password"></div>
         <div class="field"><label>Confirmar contraseña</label><input id="reg-pass2" type="password" placeholder="Repetí la contraseña" autocomplete="new-password"></div>
         <div id="reg-msg"></div>
-        <button class="btn btn-primary btn-full btn-lg" id="reg-btn" onclick="doRegister()">Crear cuenta →</button>
+        <button class="btn btn-primary btn-full btn-lg" onclick="doRegister()">Crear cuenta →</button>
         <div class="or-row">o</div>
         <button class="btn btn-outline btn-full" onclick="showScreen('login')">Ya tengo cuenta</button>
       </div>
@@ -305,7 +313,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <div class="field"><label>Tu nombre</label><input id="login-name" type="text" placeholder="Ej: Valentina García" autocomplete="username"></div>
         <div class="field"><label>Contraseña</label><input id="login-pass" type="password" placeholder="Tu contraseña" autocomplete="current-password"></div>
         <div id="login-msg"></div>
-        <button class="btn btn-primary btn-full btn-lg" id="login-btn" onclick="doLogin()">Ingresar →</button>
+        <button class="btn btn-primary btn-full btn-lg" onclick="doLogin()">Ingresar →</button>
         <div class="or-row">o</div>
         <button class="btn btn-outline btn-full" onclick="showScreen('register')">Crear cuenta nueva</button>
       </div>
@@ -393,7 +401,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     <div class="fade-in">
       <button class="btn btn-ghost btn-sm" onclick="showScreen('ranking')" style="margin-bottom:16px;">← Ranking</button>
       <h1 class="pg-title" style="font-size:1.5rem;">Salón de Campeones 🎖</h1>
-      <p class="pg-sub">Ganadores de cada campeonato de 2 semanas.</p>
+      <p class="pg-sub">Ganadores de cada campeonato.</p>
       <div class="card card-p" id="hall-content"><div class="loading-box"><div class="spin"></div></div></div>
     </div>
   </div>
@@ -407,7 +415,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
       <h1 class="pg-title" style="font-size:1.5rem;">Admin</h1>
       <p class="pg-sub">Acceso exclusivo para el docente.</p>
       <div class="card card-p">
-        <div class="field"><label>Contraseña de administrador</label><input id="al-pass" type="password" placeholder="Contraseña"></div>
+        <div class="field"><label>Contraseña de administrador</label><input id="al-pass" type="password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')adminLogin()"></div>
         <div id="al-msg"></div>
         <button class="btn btn-primary btn-full btn-lg" onclick="adminLogin()">Acceder →</button>
       </div>
@@ -432,13 +440,13 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
       </div>
 
       <div class="tab-bar">
-        <button class="tab-btn on" onclick="switchTab('overview',this)">Resumen</button>
-        <button class="tab-btn" onclick="switchTab('questions',this)">Preguntas</button>
-        <button class="tab-btn" onclick="switchTab('dates',this)">Fechas</button>
-        <button class="tab-btn" onclick="switchTab('users',this)">Usuarios</button>
-        <button class="tab-btn" onclick="switchTab('results',this)">Resultados</button>
-        <button class="tab-btn" onclick="switchTab('cycle',this)">Campeonato</button>
-        <button class="tab-btn" onclick="switchTab('settings',this)">Ajustes</button>
+        <button class="tab-btn on"  onclick="switchTab('overview',this)">Resumen</button>
+        <button class="tab-btn"     onclick="switchTab('questions',this)">Preguntas</button>
+        <button class="tab-btn"     onclick="switchTab('rounds',this)">Rondas</button>
+        <button class="tab-btn"     onclick="switchTab('users',this)">Usuarios</button>
+        <button class="tab-btn"     onclick="switchTab('results',this)">Resultados</button>
+        <button class="tab-btn"     onclick="switchTab('cycle',this)">Campeonato</button>
+        <button class="tab-btn"     onclick="switchTab('settings',this)">Ajustes</button>
       </div>
 
       <!-- OVERVIEW -->
@@ -455,37 +463,30 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
       <div class="tab-pane" id="tab-questions">
         <div class="card">
           <div class="card-hdr">
-            <h3>Banco de preguntas por campeonato</h3>
+            <h3>Editor de preguntas</h3>
             <button class="btn btn-green btn-sm" onclick="saveQuestions()">💾 Guardar</button>
           </div>
           <div class="card-body">
-            <div class="alert alert-blue" style="margin-bottom:14px;font-size:.82rem;">
-              📚 Cada campeonato puede tener su propio set de preguntas. Al cerrar el campeonato se usan las del siguiente ciclo automáticamente.
-            </div>
-            <div class="bank-cycle-header">
-              <div>
-                <div class="sec-label" style="margin-bottom:2px;">Campeonato activo</div>
-                <div id="qe-cycle-info" style="font-size:.82rem;color:var(--muted);"></div>
-              </div>
-              <button class="btn btn-outline btn-sm" onclick="addQuestionBank()">+ Nuevo banco</button>
-            </div>
-            <div class="bank-tabs" id="qe-cycle-tabs"></div>
+            <div class="alert alert-gray" style="margin-bottom:14px;font-size:.82rem;">Cada ronda tiene <strong>2 preguntas</strong>. Seleccioná la ronda para editar.</div>
             <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;" id="qe-tabs"></div>
             <div id="qe-body"></div>
           </div>
         </div>
       </div>
 
-      <!-- DATES -->
-      <div class="tab-pane" id="tab-dates">
-        <div class="card">
+      <!-- ROUNDS EDITOR -->
+      <div class="tab-pane" id="tab-rounds">
+        <div class="card" style="margin-bottom:14px;">
           <div class="card-hdr">
-            <h3>Fechas de apertura</h3>
-            <button class="btn btn-green btn-sm" onclick="saveDates()">💾 Guardar</button>
+            <h3>Configurar rondas</h3>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="addRound()">+ Agregar ronda</button>
+              <button class="btn btn-green btn-sm" onclick="saveRounds()">💾 Guardar</button>
+            </div>
           </div>
           <div class="card-body">
-            <div class="alert alert-amber" style="margin-bottom:14px;font-size:.82rem;">⚠ Cada ronda se puede responder desde su fecha de apertura hasta que abra la siguiente.</div>
-            <div id="dates-body"></div>
+            <div class="alert alert-amber" style="margin-bottom:14px;font-size:.82rem;">⚠ Podés agregar o eliminar rondas. Cada ronda tiene su fecha de apertura. Una ronda está disponible desde su fecha hasta que abra la siguiente.</div>
+            <div id="rounds-editor-body"></div>
           </div>
         </div>
       </div>
@@ -495,9 +496,17 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <div class="card">
           <div class="card-hdr">
             <h3>Cuentas registradas</h3>
-            <button class="btn btn-red btn-sm" onclick="deleteSelUsers()">Eliminar seleccionados</button>
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-red btn-sm" onclick="deleteSelUsers()">Eliminar sel.</button>
+              <button class="btn btn-outline btn-sm" onclick="showAddUserModal()">+ Nueva cuenta</button>
+            </div>
           </div>
-          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th><input type="checkbox" id="u-all" onchange="toggleAll('u-chk',this)"></th><th>Nombre</th><th>Rondas</th><th>Puntos</th><th>Registro</th></tr></thead><tbody id="a-users-body"></tbody></table></div>
+          <div style="overflow-x:auto">
+            <table class="dtable">
+              <thead><tr><th><input type="checkbox" id="u-all" onchange="toggleAll('u-chk',this)"></th><th>Nombre</th><th>Rondas jugadas</th><th>Puntos</th><th>Registro</th><th>Acciones</th></tr></thead>
+              <tbody id="a-users-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -506,9 +515,14 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <div class="card">
           <div class="card-hdr">
             <h3>Resultados del campeonato</h3>
-            <button class="btn btn-red btn-sm" onclick="deleteSelResults()">Eliminar seleccionados</button>
+            <button class="btn btn-red btn-sm" onclick="deleteSelResults()">Eliminar sel.</button>
           </div>
-          <div style="overflow-x:auto"><table class="dtable"><thead><tr><th><input type="checkbox" id="r-all" onchange="toggleAll('r-chk',this)"></th><th>Nombre</th><th>Ronda</th><th>Correctas</th><th>Pts</th><th>Total</th><th>Fecha</th></tr></thead><tbody id="a-results-body"></tbody></table></div>
+          <div style="overflow-x:auto">
+            <table class="dtable">
+              <thead><tr><th><input type="checkbox" id="r-all" onchange="toggleAll('r-chk',this)"></th><th>Nombre</th><th>Ronda</th><th>Correctas</th><th>Pts</th><th>Total</th><th>Fecha</th></tr></thead>
+              <tbody id="a-results-body"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -517,42 +531,52 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <div class="card card-p" style="margin-bottom:14px;">
           <h3 style="font-size:.9rem;font-weight:700;margin-bottom:10px;">Cerrar campeonato y premiar ganador</h3>
           <div id="cycle-preview" style="margin-bottom:14px;"></div>
-          <div class="alert alert-blue" style="margin-bottom:14px;font-size:.82rem;">Al cerrar: el ganador se archiva, los puntos se resetean y las fechas avanzan 14 días.</div>
+          <div class="alert alert-blue" style="margin-bottom:14px;font-size:.82rem;">Al cerrar el campeonato: el ganador se archiva en el Salón de Campeones, los puntos se resetean, y las fechas se avanzan 14 días automáticamente.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="closeCycle()">Cerrar y premiar ganador →</button>
             <button class="btn btn-red btn-sm" onclick="resetCycle()">Resetear sin premiar</button>
           </div>
         </div>
         <div class="card">
-          <div class="card-hdr"><h3>Salón de campeones</h3><button class="btn btn-red btn-sm" onclick="clearHall()">Borrar historial</button></div>
+          <div class="card-hdr">
+            <h3>Salón de campeones</h3>
+            <button class="btn btn-red btn-sm" onclick="clearHall()">Borrar historial</button>
+          </div>
           <div class="card-body" id="admin-hall"></div>
         </div>
       </div>
 
       <!-- SETTINGS -->
       <div class="tab-pane" id="tab-settings">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:700px;">
+          <!-- Config general -->
           <div class="card card-p" style="grid-column:1/-1">
             <h3 style="font-size:.88rem;font-weight:700;margin-bottom:14px;">Configuración general</h3>
-            <div class="field"><label>Nombre del evento</label><input id="cfg-title" type="text" placeholder="PreguntaQuiz"></div>
-            <div class="field"><label>Puntos por respuesta correcta</label><input id="cfg-pts" type="number" min="10" max="500" placeholder="150"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div class="field"><label>Nombre del evento</label><input id="cfg-title" type="text" placeholder="Quiz Académico"></div>
+              <div class="field"><label>Puntos por respuesta correcta</label><input id="cfg-pts" type="number" min="10" max="1000" placeholder="150"></div>
+            </div>
             <div id="cfg-msg" style="font-size:.82rem;margin-bottom:10px;"></div>
-            <button class="btn btn-green" onclick="saveGeneralCfg()">Guardar configuración</button>
+            <button class="btn btn-green" onclick="saveGeneralCfg()">💾 Guardar configuración</button>
           </div>
+
+          <!-- Cambiar contraseña admin -->
           <div class="card card-p">
-            <h3 style="font-size:.88rem;font-weight:700;margin-bottom:14px;">Cambiar contraseña admin</h3>
-            <div class="alert alert-blue" style="font-size:.78rem;margin-bottom:12px;">La contraseña admin se guarda en la nube y aplica a todos los dispositivos.</div>
+            <h3 style="font-size:.88rem;font-weight:700;margin-bottom:14px;">Contraseña admin</h3>
             <div class="field"><label>Contraseña actual</label><input id="pw-old" type="password"></div>
             <div class="field"><label>Nueva contraseña</label><input id="pw-new" type="password"></div>
             <div class="field"><label>Confirmar</label><input id="pw-conf" type="password"></div>
             <div id="pw-msg" style="font-size:.82rem;margin-bottom:8px;"></div>
             <button class="btn btn-primary btn-full" onclick="changeAdminPw()">Cambiar contraseña</button>
           </div>
+
+          <!-- Zona de peligro -->
           <div class="card card-p">
-            <h3 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--red);">Zona de peligro</h3>
+            <h3 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--red);">⚠ Zona de peligro</h3>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <button class="btn btn-red btn-full" onclick="clearAllResults()">Borrar todos los resultados</button>
               <button class="btn btn-red btn-full" onclick="clearAllUsers()">Borrar todas las cuentas</button>
+              <button class="btn btn-red btn-full" onclick="resetAllData()">Resetear TODO (fábrica)</button>
             </div>
           </div>
         </div>
@@ -561,12 +585,23 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   </div>
 </div>
 
+<!-- ════════ MODAL: Add/Edit User ════════ -->
+<div id="modal-user" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;">
+  <div class="card card-p" style="width:100%;max-width:400px;position:relative;">
+    <button onclick="closeModal('modal-user')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);">✕</button>
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;" id="modal-user-title">Nueva cuenta</h3>
+    <div class="field"><label>Nombre</label><input id="mu-name" type="text" placeholder="Nombre completo"></div>
+    <div class="field"><label>Contraseña</label><input id="mu-pass" type="password" placeholder="Mínimo 4 caracteres"></div>
+    <div id="mu-msg"></div>
+    <button class="btn btn-primary btn-full" onclick="saveUserModal()">Guardar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-'use strict';
 // ════════════════════════════════════════════════════════
-//  CONFIGURACIÓN — JSONBin.io para sincronización en la nube
+//  CLOUD CONFIG
 // ════════════════════════════════════════════════════════
 const CLOUD = {
   USE: true,
@@ -575,111 +610,102 @@ const CLOUD = {
 };
 
 // ════════════════════════════════════════════════════════
-//  STORAGE KEYS (solo para sesión local — login del usuario actual)
+//  STORAGE KEYS
 // ════════════════════════════════════════════════════════
 const SK = {
-  session: 'pq_session',   // solo la sesión activa (nombre del usuario logueado)
-  local:   'pq_local',     // caché local de la DB (respaldo offline)
+  users:   'qz3_users',
+  session: 'qz3_session',
+  local:   'qz3_local',
+  adminPw: 'qz3_adminpw',
 };
 
 // ════════════════════════════════════════════════════════
-//  DATOS POR DEFECTO
+//  DEFAULTS
 // ════════════════════════════════════════════════════════
+/*
+  R rondas, cada una con 2 preguntas.
+  El admin puede agregar/quitar rondas y editar preguntas.
+  El campeonato empieza en #1.
+*/
 const DEFAULT_ROUNDS = [
-  { id:1, label:'Ronda 1', day:'Lunes',     week:1, opens:'2025-05-05' },
-  { id:2, label:'Ronda 2', day:'Miércoles', week:1, opens:'2025-05-07' },
-  { id:3, label:'Ronda 3', day:'Lunes',     week:2, opens:'2025-05-12' },
-  { id:4, label:'Ronda 4', day:'Miércoles', week:2, opens:'2025-05-14' },
+  { id:1, label:'Ronda 1', day:'Lunes',     opens:'2025-05-05' },
+  { id:2, label:'Ronda 2', day:'Miércoles', opens:'2025-05-07' },
+  { id:3, label:'Ronda 3', day:'Lunes',     opens:'2025-05-12' },
+  { id:4, label:'Ronda 4', day:'Miércoles', opens:'2025-05-14' },
 ];
 
-// Banco de preguntas indexado por campeonato (cycleNum)
-// Estructura: { [cycleNum]: { [roundId]: [{q, opts, correct}] } }
-const DEFAULT_QUESTION_BANK = {
-  1: {
-    1: [
-      { q:'¿Cuál es la unidad básica de la vida?',           opts:['El átomo','La célula','El tejido','El órgano'],           correct:1 },
-      { q:'¿Qué gas produce la fotosíntesis?',               opts:['CO₂','Nitrógeno','Oxígeno','Hidrógeno'],                  correct:2 },
-      { q:'¿Cuántos huesos tiene el cuerpo humano adulto?',  opts:['106','206','306','406'],                                   correct:1 },
-    ],
-    2: [
-      { q:'¿En qué año llegó Colón a América?',             opts:['1488','1490','1492','1496'],                               correct:2 },
-      { q:'¿Quién fue el libertador de Argentina?',         opts:['Simón Bolívar','San Martín','Belgrano','Moreno'],          correct:1 },
-      { q:'¿En qué año se declaró la independencia argentina?', opts:['1810','1816','1820','1825'],                           correct:1 },
-    ],
-    3: [
-      { q:'¿Cuánto es la raíz cuadrada de 144?',           opts:['10','11','12','13'],                                       correct:2 },
-      { q:'¿Cuántos grados suma un triángulo?',             opts:['90°','180°','270°','360°'],                                correct:1 },
-      { q:'¿Cuál es el valor aproximado de π?',             opts:['2.14','3.14','4.14','5.14'],                               correct:1 },
-    ],
-    4: [
-      { q:'¿Cuál es el océano más grande del planeta?',     opts:['Atlántico','Índico','Ártico','Pacífico'],                  correct:3 },
-      { q:'¿En qué continente está Egipto?',                opts:['Asia','Europa','África','Oceanía'],                        correct:2 },
-      { q:'¿Cuál es la capital de Australia?',              opts:['Sidney','Melbourne','Canberra','Brisbane'],                correct:2 },
-    ],
-  },
+// 2 preguntas por ronda, todas distintas y corregidas
+const DEFAULT_QUESTIONS = {
+  1: [
+    { q:'¿Cuál es la unidad básica de la vida?',
+      opts:['El átomo','La célula','El tejido','El órgano'], correct:1 },
+    { q:'¿Qué gas libera la planta durante la fotosíntesis?',
+      opts:['Dióxido de carbono','Nitrógeno','Oxígeno','Hidrógeno'], correct:2 },
+  ],
+  2: [
+    { q:'¿En qué año llegó Cristóbal Colón a América?',
+      opts:['1488','1490','1492','1498'], correct:2 },
+    { q:'¿En qué año se declaró la independencia de Argentina?',
+      opts:['1810','1816','1820','1825'], correct:1 },
+  ],
+  3: [
+    { q:'¿Cuánto mide la raíz cuadrada de 144?',
+      opts:['10','11','12','13'], correct:2 },
+    { q:'¿Cuántos grados suman los ángulos internos de un triángulo?',
+      opts:['90°','180°','270°','360°'], correct:1 },
+  ],
+  4: [
+    { q:'¿Cuál es el océano más grande del planeta?',
+      opts:['Atlántico','Índico','Ártico','Pacífico'], correct:3 },
+    { q:'¿Cuál es la capital de Australia?',
+      opts:['Sídney','Melbourne','Canberra','Brisbane'], correct:2 },
+  ],
 };
 
 const DEFAULT_CFG = {
-  pts:          150,
-  eventTitle:   'PreguntaQuiz',
-  cycleNum:     1,
-  adminPw:      'admin123',   // ← contraseña admin en la NUBE (no en localStorage)
-  rounds:       DEFAULT_ROUNDS,
-  questionBank: DEFAULT_QUESTION_BANK,
-  // users ahora vive dentro de la DB de la nube para acceso multi-dispositivo
-  users:        [],
+  pts:        150,
+  eventTitle: 'Quiz Académico',
+  cycleNum:   1,
+  rounds:     DEFAULT_ROUNDS,
+  questions:  DEFAULT_QUESTIONS,
+  hall:       [],
 };
 
 // ════════════════════════════════════════════════════════
-//  LOCAL STORAGE — SOLO PARA SESIÓN ACTIVA
+//  LOCAL STORAGE
 // ════════════════════════════════════════════════════════
 const ls = {
   get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
   set: (k,v) => localStorage.setItem(k, JSON.stringify(v)),
-  rm:  k => localStorage.removeItem(k),
+  rm:  k  => localStorage.removeItem(k),
 };
 
-// La sesión (usuario logueado) sigue en localStorage para persistir entre recargas
-function getCurUser()  { return ls.get(SK.session); }
+function getUsers()   { return ls.get(SK.users)   || []; }
+function getCurUser() { return ls.get(SK.session); }
+function getAdminPw() { return ls.get(SK.adminPw) || 'admin123'; }
 
 // ════════════════════════════════════════════════════════
-//  CLOUD DB — JSONBin.io
-//  Toda la data importante vive aquí: users, results, hall, config
+//  CLOUD DB
 // ════════════════════════════════════════════════════════
-let _dbCache   = null;
-let _dbPending = null;  // evita peticiones simultáneas
+let _dbCache = null;
 
 async function dbRead() {
-  // Si ya hay un fetch en curso, reusar la misma promesa (evita race conditions)
-  if (_dbCache)   return _dbCache;
-  if (_dbPending) return _dbPending;
-
+  if (_dbCache) return _dbCache;
   if (CLOUD.USE) {
-    _dbPending = fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}/latest`, {
-      headers: { 'X-Master-Key': CLOUD.KEY }
-    })
-    .then(r => {
+    try {
+      const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}/latest`, {
+        headers: { 'X-Master-Key': CLOUD.KEY }
+      });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    })
-    .then(d => {
-      _dbCache   = d.record;
-      _dbPending = null;
-      // Guardar copia local como respaldo offline
+      const d = await r.json();
+      _dbCache = d.record;
       ls.set(SK.local, _dbCache);
       return _dbCache;
-    })
-    .catch(e => {
-      _dbPending = null;
-      console.warn('Cloud read failed, usando caché local:', e);
-      showToast('⚠ Sin conexión — mostrando datos locales');
-      const local = ls.get(SK.local) || { results:[], hall:[], config:{} };
-      _dbCache = local;
-      return _dbCache;
-    });
-    return _dbPending;
+    } catch(e) {
+      console.warn('Cloud read failed:', e);
+      showToast('⚠ Sin conexión — usando datos locales');
+    }
   }
-
   const local = ls.get(SK.local) || { results:[], hall:[], config:{} };
   _dbCache = local;
   return _dbCache;
@@ -687,104 +713,61 @@ async function dbRead() {
 
 async function dbWrite(data) {
   _dbCache = data;
-  ls.set(SK.local, data); // respaldo siempre
+  ls.set(SK.local, data);
   if (CLOUD.USE) {
     try {
       const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}`, {
-        method:  'PUT',
+        method: 'PUT',
         headers: { 'Content-Type':'application/json', 'X-Master-Key': CLOUD.KEY },
-        body:    JSON.stringify(data),
+        body: JSON.stringify(data)
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
     } catch(e) {
       console.warn('Cloud write failed:', e);
-      showToast('⚠ Error al guardar en la nube');
+      showToast('⚠ Error al guardar en la nube — guardado localmente');
     }
   }
 }
 
-function dbInvalidate() { _dbCache = null; _dbPending = null; }
+function dbInvalidate() { _dbCache = null; }
 
 // ════════════════════════════════════════════════════════
-//  CONFIG HELPERS — todos asíncronos, siempre desde la nube
+//  CONFIG HELPERS
 // ════════════════════════════════════════════════════════
 async function getCfg() {
   const db = await dbRead();
+  // Deep merge: defaults ← db.config
   return Object.assign({}, DEFAULT_CFG, db.config || {});
 }
 
-async function getRounds() {
-  const cfg = await getCfg();
-  return cfg.rounds || DEFAULT_ROUNDS;
-}
-
-async function getCycleNum() {
-  const cfg = await getCfg();
-  return cfg.cycleNum || 1;
-}
-
-async function getPTS() {
-  const cfg = await getCfg();
-  return cfg.pts || 150;
-}
-
-async function getTitle() {
-  const cfg = await getCfg();
-  return cfg.eventTitle || 'PreguntaQuiz';
-}
-
-async function getAdminPw() {
-  const cfg = await getCfg();
-  return cfg.adminPw || 'admin123';
-}
-
-/**
- * Retorna preguntas para el campeonato y ronda actual.
- * El banco de preguntas está indexado por cycleNum.
- * Si no hay banco para el campeonato actual, usa el más reciente disponible.
- */
-async function getQuestions(cycleNum) {
-  const cfg  = await getCfg();
-  const bank = cfg.questionBank || DEFAULT_QUESTION_BANK;
-  if (!cycleNum) cycleNum = cfg.cycleNum || 1;
-  // Buscar banco del ciclo actual; si no existe, usar el último disponible
-  if (bank[cycleNum]) return bank[cycleNum];
-  const cycles = Object.keys(bank).map(Number).sort((a,b) => b - a);
-  return bank[cycles[0]] || DEFAULT_QUESTION_BANK[1];
-}
-
-/**
- * Retorna lista de usuarios desde la NUBE (no localStorage).
- * FIX PRINCIPAL: antes getUsers() leía solo localStorage → no compartido entre dispositivos.
- */
-async function getUsers() {
-  const db = await dbRead();
-  return db.users || db.config?.users || [];
-}
+async function getRounds()    { const c = await getCfg(); return c.rounds    || DEFAULT_ROUNDS; }
+async function getQuestions() { const c = await getCfg(); return c.questions || DEFAULT_QUESTIONS; }
+async function getPTS()       { const c = await getCfg(); return c.pts       || 150; }
+async function getCycleNum()  { const c = await getCfg(); return c.cycleNum  || 1; }
+async function getTitle()     { const c = await getCfg(); return c.eventTitle|| 'Quiz Académico'; }
 
 // ════════════════════════════════════════════════════════
 //  DATE / ROUND LOGIC
 // ════════════════════════════════════════════════════════
 function parseDate(s) {
   const [y,m,d] = s.split('-').map(Number);
-  const dt = new Date(y, m-1, d);
-  dt.setHours(0,0,0,0);
-  return dt;
+  const dt = new Date(y,m-1,d); dt.setHours(0,0,0,0); return dt;
 }
-function today() {
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  return d;
-}
-function fmtDate(d)  { return d.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}); }
-function fmtShort(d) { return d.toLocaleDateString('es-AR', {day:'numeric', month:'short'}); }
+function today() { const d = new Date(); d.setHours(0,0,0,0); return d; }
+function fmtDate(d) { return d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}); }
+function fmtShort(d) { return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'}); }
 
+/*
+  - 'future'    → fecha no llegó
+  - 'available' → fecha llegó y la siguiente no abrió (o es la última)
+  - 'closed'    → la siguiente ya abrió
+*/
 function getRoundStatus(round, allRounds) {
-  const t     = today();
+  const t = today();
   const opens = parseDate(round.opens);
   if (t < opens) return 'future';
-  const next = allRounds.find(r => r.id === round.id + 1);
-  if (next && t >= parseDate(next.opens)) return 'closed';
+  const nextR = allRounds.find(r => r.id === round.id + 1);
+  if (nextR && t >= parseDate(nextR.opens)) return 'closed';
   return 'available';
 }
 
@@ -794,94 +777,47 @@ async function getAvailableRound() {
 }
 
 // ════════════════════════════════════════════════════════
-//  AUTH — cuentas en la nube, sesión en localStorage
+//  AUTH
 // ════════════════════════════════════════════════════════
-
-/**
- * REGISTRO: guarda usuario en la DB de la nube.
- * FIX: antes guardaba en localStorage → inaccesible desde otros dispositivos.
- */
-async function doRegister() {
-  const name  = (document.getElementById('reg-name').value || '').trim();
+function doRegister() {
+  const name  = (document.getElementById('reg-name').value||'').trim();
   const pass  = document.getElementById('reg-pass').value;
   const pass2 = document.getElementById('reg-pass2').value;
   const msg   = document.getElementById('reg-msg');
-  const btn   = document.getElementById('reg-btn');
   msg.innerHTML = '';
 
-  if (name.length < 2)  { showAlert(msg, 'El nombre debe tener al menos 2 caracteres.', 'red'); return; }
-  if (pass.length < 4)  { showAlert(msg, 'La contraseña debe tener al menos 4 caracteres.', 'red'); return; }
-  if (pass !== pass2)   { showAlert(msg, 'Las contraseñas no coinciden.', 'red'); return; }
+  if (name.length < 2) { showAlert(msg,'El nombre debe tener al menos 2 caracteres.','red'); return; }
+  if (pass.length < 4) { showAlert(msg,'La contraseña debe tener al menos 4 caracteres.','red'); return; }
+  if (pass !== pass2)  { showAlert(msg,'Las contraseñas no coinciden.','red'); return; }
 
-  btn.disabled = true;
-  btn.textContent = 'Verificando...';
-
-  try {
-    const db    = await dbRead();
-    const users = db.users || [];
-
-    if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
-      showAlert(msg, 'Ya existe una cuenta con ese nombre. Ingresá con tu contraseña.', 'amber');
-      return;
-    }
-
-    users.push({ name, pass, created: new Date().toLocaleDateString('es-AR') });
-    db.users = users;
-    await dbWrite(db);
-    dbInvalidate();
-
-    // Guardar sesión localmente
-    ls.set(SK.session, { name });
-    updateHeader();
-    showToast('✓ Cuenta creada');
-    showScreen('dash');
-  } catch(e) {
-    showAlert(msg, 'Error de conexión. Intentá de nuevo.', 'red');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Crear cuenta →';
+  const users = getUsers();
+  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
+    showAlert(msg,'Ya existe una cuenta con ese nombre.','amber'); return;
   }
+  users.push({ name, pass, created: new Date().toLocaleDateString('es-AR') });
+  ls.set(SK.users, users);
+  ls.set(SK.session, { name });
+  updateHeader();
+  showToast('✓ Cuenta creada');
+  showScreen('dash');
 }
 
-/**
- * LOGIN: verifica contra usuarios en la nube.
- * FIX: antes verificaba solo en localStorage → no funcionaba entre dispositivos.
- */
-async function doLogin() {
-  const name = (document.getElementById('login-name').value || '').trim();
+function doLogin() {
+  const name = (document.getElementById('login-name').value||'').trim();
   const pass = document.getElementById('login-pass').value;
   const msg  = document.getElementById('login-msg');
-  const btn  = document.getElementById('login-btn');
   msg.innerHTML = '';
 
-  if (!name || !pass) { showAlert(msg, 'Completá todos los campos.', 'red'); return; }
+  const users = getUsers();
+  const user  = users.find(u => u.name.toLowerCase()===name.toLowerCase() && u.pass===pass);
+  if (!user) { showAlert(msg,'Nombre o contraseña incorrectos.','red'); return; }
 
-  btn.disabled = true;
-  btn.textContent = 'Verificando...';
-
-  try {
-    dbInvalidate(); // forzar lectura fresca para login
-    const db    = await dbRead();
-    const users = db.users || [];
-    const user  = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.pass === pass);
-
-    if (!user) {
-      showAlert(msg, 'Nombre o contraseña incorrectos.', 'red');
-      return;
-    }
-
-    ls.set(SK.session, { name: user.name });
-    document.getElementById('login-name').value = '';
-    document.getElementById('login-pass').value = '';
-    updateHeader();
-    showToast(`Bienvenido/a, ${escHtml(user.name)}`);
-    showScreen('dash');
-  } catch(e) {
-    showAlert(msg, 'Error de conexión. Intentá de nuevo.', 'red');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Ingresar →';
-  }
+  ls.set(SK.session, { name: user.name });
+  document.getElementById('login-name').value = '';
+  document.getElementById('login-pass').value = '';
+  updateHeader();
+  showToast(`Bienvenido/a, ${escHtml(user.name)}`);
+  showScreen('dash');
 }
 
 function doLogout() {
@@ -892,22 +828,11 @@ function doLogout() {
 }
 
 function updateHeader() {
-  const u         = getCurUser();
-  const loginBtn  = document.getElementById('hdr-login-btn');
-  const logoutBtn = document.getElementById('hdr-logout-btn');
-  const rankBtn   = document.getElementById('hdr-rank-btn');
-  const userEl    = document.getElementById('hdr-user');
-  if (u) {
-    loginBtn.style.display  = 'none';
-    logoutBtn.style.display = '';
-    rankBtn.style.display   = '';
-    userEl.textContent = u.name;
-  } else {
-    loginBtn.style.display  = '';
-    logoutBtn.style.display = 'none';
-    rankBtn.style.display   = 'none';
-    userEl.textContent = '';
-  }
+  const u = getCurUser();
+  document.getElementById('hdr-login-btn').style.display  = u ? 'none' : '';
+  document.getElementById('hdr-logout-btn').style.display = u ? '' : 'none';
+  document.getElementById('hdr-rank-btn').style.display   = u ? '' : 'none';
+  document.getElementById('hdr-user').textContent = u ? u.name : '';
 }
 
 // ════════════════════════════════════════════════════════
@@ -915,48 +840,60 @@ function updateHeader() {
 // ════════════════════════════════════════════════════════
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
-  const el = document.getElementById('screen-' + name);
+  const el = document.getElementById('screen-'+name);
   if (el) el.classList.add('on');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 
-  if (name === 'home')    buildHome();
-  if (name === 'dash')    buildDash();
-  if (name === 'ranking') { dbInvalidate(); loadRanking(); startRankingRefresh(); }
-  if (name === 'hall')    loadHall();
-  if (name === 'admin')   buildAdminPanel();
+  if (name==='home')    buildHome();
+  if (name==='dash')    buildDash();
+  if (name==='ranking') { dbInvalidate(); loadRanking(); startRankingRefresh(); }
+  if (name==='hall')    loadHall();
+  if (name==='admin')   buildAdminPanel();
 }
 
 // ════════════════════════════════════════════════════════
 //  HOME
 // ════════════════════════════════════════════════════════
 async function buildHome() {
+  // Actualizar título
+  const title = await getTitle();
+  const titleEl = document.getElementById('home-title');
+  if (titleEl) titleEl.innerHTML = title + '<br>🎓';
+
   await buildRoundChips('home-rounds');
   const avail = await getAvailableRound();
   const el    = document.getElementById('home-status');
   if (!el) return;
+
   if (avail) {
-    el.innerHTML = `<div class="alert alert-green">✅ <strong>${escHtml(avail.label)}</strong> disponible ahora · 3 preguntas</div>`;
+    const pts = await getPTS();
+    el.innerHTML = `<div class="alert alert-green">✅ <strong>${escHtml(avail.label)}</strong> disponible ahora · 2 preguntas · hasta ${pts*2} pts</div>`;
   } else {
     const rounds = await getRounds();
-    const next   = rounds.find(r => getRoundStatus(r, rounds) === 'future');
-    el.innerHTML = next
-      ? `<div class="alert alert-gray">Próxima ronda: <strong>${fmtDate(parseDate(next.opens))}</strong></div>`
-      : `<div class="alert alert-amber">El campeonato ha finalizado. Esperá la próxima edición.</div>`;
+    const next = rounds.find(r => getRoundStatus(r,rounds)==='future');
+    if (next) {
+      el.innerHTML = `<div class="alert alert-gray">Próxima ronda: <strong>${fmtDate(parseDate(next.opens))}</strong></div>`;
+    } else {
+      el.innerHTML = `<div class="alert alert-amber">El campeonato ha finalizado. Esperá la próxima edición.</div>`;
+    }
   }
 }
 
+// ════════════════════════════════════════════════════════
+//  ROUND CHIPS
+// ════════════════════════════════════════════════════════
 async function buildRoundChips(containerId) {
   const rounds = await getRounds();
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = rounds.map(r => {
     const st = getRoundStatus(r, rounds);
-    let cls = '', pillTxt = '', pillCls = '';
-    if      (st === 'available') { cls = 'active-round'; pillTxt = 'Disponible'; pillCls = 'pill-open'; }
-    else if (st === 'future')    { cls = '';              pillTxt = 'Próxima';    pillCls = 'pill-next'; }
-    else                         { cls = 'done-round';   pillTxt = 'Cerrada';    pillCls = 'pill-done'; }
+    let cls='', pillTxt='', pillCls='';
+    if      (st==='available') { cls='active-round'; pillTxt='Disponible'; pillCls='pill-open'; }
+    else if (st==='future')    { cls='';              pillTxt='Próxima';    pillCls='pill-next'; }
+    else                       { cls='done-round';    pillTxt='Cerrada';    pillCls='pill-done'; }
     return `<div class="round-chip ${cls}">
-      <div class="rc-num">Ronda ${r.id}</div>
+      <div class="rc-num">${escHtml(r.label)}</div>
       <div class="rc-day">${escHtml(r.day)}</div>
       <div class="rc-date">${fmtShort(parseDate(r.opens))}</div>
       <div><span class="rc-pill ${pillCls}">${pillTxt}</span></div>
@@ -971,8 +908,7 @@ async function buildDash() {
   const user = getCurUser();
   if (!user) { showScreen('login'); return; }
 
-  document.getElementById('dash-date').textContent =
-    new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dash-name').textContent = user.name;
 
   await buildRoundChips('dash-rounds');
@@ -983,26 +919,26 @@ async function buildDash() {
   const rounds   = await getRounds();
   const cycleNum = await getCycleNum();
   const pts      = await getPTS();
-  const myTotal  = results.filter(r => r.name === user.name).reduce((a,r) => a + r.score, 0);
-  const myRounds = results.filter(r => r.name === user.name).length;
+  const myTotal  = results.filter(r=>r.name===user.name).reduce((a,r)=>a+r.score,0);
+  const myRounds = results.filter(r=>r.name===user.name).length;
+  const totalR   = rounds.length;
 
-  document.getElementById('dash-sub').textContent = myTotal > 0
-    ? `Campeonato #${cycleNum} · ${myTotal} puntos · ${myRounds}/4 rondas completadas`
-    : `Campeonato #${cycleNum} · Aún no tenés puntos — ¡empezá ahora!`;
+  document.getElementById('dash-sub').textContent =
+    myTotal > 0
+      ? `Campeonato #${cycleNum} · ${myTotal} pts · ${myRounds}/${totalR} rondas completadas`
+      : `Campeonato #${cycleNum} · Aún no tenés puntos — ¡empezá ahora!`;
 
   const el = document.getElementById('dash-action');
 
   if (!avail) {
-    const next      = rounds.find(r => getRoundStatus(r, rounds) === 'future');
-    const allClosed = rounds.every(r => getRoundStatus(r, rounds) === 'closed');
+    const next = rounds.find(r => getRoundStatus(r,rounds)==='future');
+    const allClosed = rounds.every(r => getRoundStatus(r,rounds)==='closed');
     if (allClosed) {
       el.innerHTML = `
-        <div class="alert alert-amber">El campeonato finalizó. El admin declarará al ganador pronto. ¡Gracias por participar!</div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
-          <button class="btn btn-primary btn-full btn-lg" onclick="showScreen('ranking')">Ver ranking final 🏆</button>
-        </div>`;
+        <div class="alert alert-amber">El campeonato finalizó. El admin cerrará los resultados y se declarará el ganador. ¡Gracias por participar!</div>
+        <button class="btn btn-primary btn-full btn-lg" onclick="showScreen('ranking')">Ver ranking final 🏆</button>`;
     } else {
-      const nd   = next ? parseDate(next.opens) : null;
+      const nd = next ? parseDate(next.opens) : null;
       const cdId = 'dash-cd-' + Date.now();
       el.innerHTML = `
         <div class="alert alert-gray" style="margin-bottom:14px;">No hay rondas disponibles ahora.</div>
@@ -1013,13 +949,13 @@ async function buildDash() {
     return;
   }
 
-  const alreadyPlayed = results.some(r => r.name === user.name && r.roundId === avail.id);
+  const alreadyPlayed = results.some(r => r.name===user.name && r.roundId===avail.id);
   if (alreadyPlayed) {
-    const myResult = results.find(r => r.name === user.name && r.roundId === avail.id);
+    const myResult = results.find(r => r.name===user.name && r.roundId===avail.id);
     el.innerHTML = `
       <div class="alert alert-green" style="margin-bottom:14px;">
-        ✅ Ya completaste la <strong>${escHtml(avail.label)}</strong>. Obtuviste <strong>${myResult?.score || 0} puntos</strong>.<br>
-        <span style="font-size:.82rem;">Tu respuesta está guardada. Podés practicar pero no modifica tu puntaje.</span>
+        ✅ Ya completaste la <strong>${escHtml(avail.label)}</strong>. Obtuviste <strong>${myResult?.score||0} puntos</strong>.<br>
+        <span style="font-size:.82rem;">Solo se guarda la primera respuesta. Podés practicar de nuevo.</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-outline btn-full" onclick="startQuiz(true)">Practicar de nuevo (no guarda)</button>
@@ -1029,7 +965,7 @@ async function buildDash() {
     el.innerHTML = `
       <div class="alert alert-green" style="margin-bottom:14px;">
         <strong>${escHtml(avail.label)} disponible</strong> · ${fmtDate(parseDate(avail.opens))}<br>
-        <span style="font-size:.82rem;">3 preguntas · ${pts} puntos cada una · máx. ${pts * 3} pts</span>
+        <span style="font-size:.82rem;">2 preguntas · ${pts} puntos c/u · máx. ${pts*2} pts</span>
       </div>
       <button class="btn btn-primary btn-full btn-lg" onclick="startQuiz(false)" style="margin-bottom:10px;">¡Responder ahora! →</button>
       <button class="btn btn-ghost btn-full" onclick="showScreen('ranking')">Ver ranking</button>`;
@@ -1039,7 +975,7 @@ async function buildDash() {
 // ════════════════════════════════════════════════════════
 //  QUIZ
 // ════════════════════════════════════════════════════════
-let Q = { round:null, idx:0, score:0, correct:0, answered:false, practice:false, questions:[], pts:150 };
+let Q = { round:null, idx:0, score:0, correct:0, answered:false, practice:false, questions:[] };
 
 async function startQuiz(practice) {
   const user  = getCurUser();
@@ -1047,37 +983,34 @@ async function startQuiz(practice) {
   const avail = await getAvailableRound();
   if (!avail) { showToast('No hay ronda disponible'); return; }
 
-  const cycleNum = await getCycleNum();
-  const allQs    = await getQuestions(cycleNum);
-  const pts      = await getPTS();
-  const roundQs  = allQs[avail.id] || [];
+  const allQs  = await getQuestions();
+  const roundQs = allQs[avail.id] || [];
+  if (!roundQs.length) { showToast('Esta ronda no tiene preguntas configuradas'); return; }
 
-  if (!roundQs.length) { showToast('No hay preguntas para esta ronda'); return; }
-
-  Q = { round:avail, idx:0, score:0, correct:0, answered:false, practice, questions:roundQs, pts };
+  Q = { round:avail, idx:0, score:0, correct:0, answered:false, practice, questions:roundQs };
   document.getElementById('q-sess-lbl').textContent = avail.label + (practice ? ' (Práctica)' : '');
   showScreen('quiz');
   renderQ();
 }
 
 function renderQ() {
-  const qs    = Q.questions;
-  const q     = qs[Q.idx];
+  const qs  = Q.questions;
+  const q   = qs[Q.idx];
   if (!q) return;
   const total = qs.length;
 
-  document.getElementById('q-prog').style.width       = (Q.idx / total * 100) + '%';
-  document.getElementById('q-num-lbl').textContent    = `Pregunta ${Q.idx + 1} de ${total}`;
-  document.getElementById('q-score-lbl').textContent  = `${Q.score} pts`;
-  document.getElementById('q-text').textContent       = q.q;
-  document.getElementById('q-fb').className           = 'q-fb';
+  document.getElementById('q-prog').style.width     = (Q.idx/total*100)+'%';
+  document.getElementById('q-num-lbl').textContent  = `Pregunta ${Q.idx+1} de ${total}`;
+  document.getElementById('q-score-lbl').textContent= `${Q.score} pts`;
+  document.getElementById('q-text').textContent     = q.q;
+  document.getElementById('q-fb').className         = 'q-fb';
   document.getElementById('q-next-btn').style.display = 'none';
   Q.answered = false;
 
   const LTRS = ['A','B','C','D'];
-  const el   = document.getElementById('q-opts');
+  const el = document.getElementById('q-opts');
   el.innerHTML = '';
-  q.opts.forEach((opt, i) => {
+  q.opts.forEach((opt,i) => {
     const btn = document.createElement('button');
     btn.className = 'opt';
     const ltr = document.createElement('span');
@@ -1094,20 +1027,20 @@ function checkAnswer(chosen, correct, btn) {
   if (Q.answered) return;
   Q.answered = true;
   document.querySelectorAll('.opt').forEach(o => o.classList.add('dis'));
-  const fb = document.getElementById('q-fb');
+  const fb  = document.getElementById('q-fb');
+  const pts = (_dbCache?.config?.pts) ?? DEFAULT_CFG.pts;
 
   if (chosen === correct) {
     btn.classList.add('ok');
-    Q.score += Q.pts;
-    Q.correct++;
+    Q.score += pts; Q.correct++;
     document.getElementById('q-score-lbl').textContent = `${Q.score} pts`;
-    fb.className  = 'q-fb show ok';
-    fb.textContent = `✓ Correcto · +${Q.pts} puntos`;
+    fb.className = 'q-fb show ok';
+    fb.textContent = `✓ Correcto · +${pts} puntos`;
   } else {
     btn.classList.add('err');
     document.querySelectorAll('.opt')[correct].classList.add('ok');
-    fb.className  = 'q-fb show err';
-    fb.textContent = `✗ Incorrecto · Respuesta: ${Q.questions[Q.idx].opts[correct]}`;
+    fb.className = 'q-fb show err';
+    fb.textContent = `✗ Incorrecto · Respuesta correcta: ${Q.questions[Q.idx].opts[correct]}`;
   }
   document.getElementById('q-next-btn').style.display = '';
 }
@@ -1122,9 +1055,9 @@ async function nextQ() {
 }
 
 async function finishRound() {
-  const user = getCurUser();
-  const db   = await dbRead();
-  const already = (db.results || []).some(r => r.name === user.name && r.roundId === Q.round.id);
+  const user   = getCurUser();
+  const db     = await dbRead();
+  const already = (db.results||[]).some(r => r.name===user.name && r.roundId===Q.round.id);
 
   if (!already && !Q.practice) {
     if (!db.results) db.results = [];
@@ -1142,14 +1075,14 @@ async function finishRound() {
     dbInvalidate();
   }
 
-  const db2     = await dbRead();
-  const myTotal = (db2.results || []).filter(r => r.name === user.name).reduce((a,r) => a + r.score, 0);
-  const total   = Q.questions.length;
-  const pct     = Q.correct / total;
+  const total  = Q.questions.length;
+  const pct    = Q.correct / total;
+  const db2    = await dbRead();
+  const myTotal = (db2.results||[]).filter(r=>r.name===user.name).reduce((a,r)=>a+r.score,0);
 
-  document.getElementById('r-emoji').textContent  = pct === 1 ? '🏆' : pct >= .67 ? '🎉' : '💪';
-  document.getElementById('r-title').textContent  = pct === 1 ? '¡Perfecto!' : pct >= .67 ? '¡Bien hecho!' : '¡Seguí practicando!';
-  document.getElementById('r-msg').textContent    = already ? 'Ya habías respondido esta ronda — resultado no guardado.' : Q.practice ? 'Modo práctica — resultado no guardado.' : `Acertaste ${Q.correct} de ${total}.`;
+  document.getElementById('r-emoji').textContent   = pct===1?'🏆':pct>=.5?'🎉':'💪';
+  document.getElementById('r-title').textContent   = pct===1?'¡Perfecto!':pct>=.5?'¡Bien hecho!':'¡Seguí practicando!';
+  document.getElementById('r-msg').textContent     = already?'Ya habías jugado esta ronda — resultado no guardado.':Q.practice?'Modo práctica — resultado no guardado.':`Acertaste ${Q.correct} de ${total}.`;
   document.getElementById('r-pts-sess').textContent  = Q.score + ' pts';
   document.getElementById('r-pts-total').textContent = myTotal + ' pts';
   showScreen('result');
@@ -1163,23 +1096,22 @@ function startRankingRefresh() {
   if (rankTimer) clearInterval(rankTimer);
   rankTimer = setInterval(() => {
     if (document.getElementById('screen-ranking').classList.contains('on')) {
-      dbInvalidate();
-      loadRanking();
+      dbInvalidate(); loadRanking();
     }
   }, 20000);
 }
 
 async function loadRanking() {
   const cycleNum = await getCycleNum();
-  document.getElementById('rank-cycle-lbl').textContent = `Campeonato #${cycleNum} · puntos acumulados`;
+  const rounds   = await getRounds();
+  document.getElementById('rank-cycle-lbl').textContent = `Campeonato #${cycleNum} · puntos acumulados de ${rounds.length} rondas`;
   document.getElementById('rank-card').innerHTML = '<div class="loading-box"><div class="spin"></div> Cargando…</div>';
 
   dbInvalidate();
   const db      = await dbRead();
   const results = db.results || [];
   const user    = getCurUser();
-  const rounds  = await getRounds();
-  const qs      = await getQuestions(cycleNum);
+  const qs      = await getQuestions();
   const pts     = await getPTS();
 
   const players = {};
@@ -1190,13 +1122,14 @@ async function loadRanking() {
     players[r.name].totalQ  += r.total;
     players[r.name].rounds[r.roundId] = r;
   });
-  const sorted = Object.values(players).sort((a,b) => b.total - a.total);
-  const maxPts = rounds.length * (qs[1] || [{},{},{}]).length * pts;
+  const sorted = Object.values(players).sort((a,b) => b.total-a.total);
+  const qPerRound = Object.values(qs)[0]?.length || 2;
+  const maxPts = rounds.length * qPerRound * pts;
 
   document.getElementById('rank-stats').innerHTML = `
     <div class="stat-box"><div class="stat-val">${sorted.length}</div><div class="stat-lbl">Jugadores</div></div>
     <div class="stat-box"><div class="stat-val">${results.length}</div><div class="stat-lbl">Rondas jugadas</div></div>
-    <div class="stat-box"><div class="stat-val">${sorted[0]?.total || 0}</div><div class="stat-lbl">Líder pts</div></div>
+    <div class="stat-box"><div class="stat-val">${sorted[0]?.total||0}</div><div class="stat-lbl">Líder</div></div>
     <div class="stat-box"><div class="stat-val">${maxPts}</div><div class="stat-lbl">Máx. posible</div></div>`;
 
   if (!sorted.length) {
@@ -1207,23 +1140,24 @@ async function loadRanking() {
 
   const medals = ['🥇','🥈','🥉'];
   const rows = sorted.map((p,i) => {
-    const pct = p.totalQ ? p.correct / p.totalQ : 0;
+    const pct = p.totalQ ? p.correct/p.totalQ : 0;
     let badge, bc;
-    if      (pct === 1)  { badge = 'Perfecto';  bc = 'badge-gold'; }
-    else if (pct >= .75) { badge = 'Excelente'; bc = 'badge-ok';   }
-    else if (pct >= .5)  { badge = 'Bien';      bc = 'badge-mid';  }
-    else                 { badge = 'Aprendiz';  bc = 'badge-low';  }
+    if      (pct===1)   { badge='Perfecto';  bc='badge-gold'; }
+    else if (pct>=.75)  { badge='Excelente'; bc='badge-ok';   }
+    else if (pct>=.5)   { badge='Bien';      bc='badge-mid';  }
+    else                { badge='Aprendiz';  bc='badge-low';  }
 
     const dots = rounds.map(r => {
       const res = p.rounds[r.id];
       if (!res) return `<span class="s-dot sd-none" title="${escHtml(r.label)}: sin jugar"></span>`;
-      return `<span class="s-dot ${res.correct === res.total ? 'sd-full' : 'sd-partial'}" title="${escHtml(r.label)}: ${res.score}pts"></span>`;
+      const c = res.correct===res.total ? 'sd-full':'sd-partial';
+      return `<span class="s-dot ${c}" title="${escHtml(r.label)}: ${res.score}pts"></span>`;
     }).join('');
 
-    const isMe = user && p.name === user.name;
-    return `<tr${isMe ? ' class="me"' : ''}>
-      <td>${medals[i] || ''} ${i+1}</td>
-      <td><strong>${escHtml(p.name)}</strong>${isMe ? ' <span style="font-size:.68rem;color:var(--blue)">(vos)</span>' : ''}</td>
+    const isMe = user && p.name===user.name;
+    return `<tr${isMe?' class="me"':''}>
+      <td>${medals[i]||''} ${i+1}</td>
+      <td><strong>${escHtml(p.name)}</strong>${isMe?' <span style="font-size:.68rem;color:var(--blue)">(vos)</span>':''}</td>
       <td><span class="s-dots">${dots}</span></td>
       <td class="pts-cell">${p.correct}/${p.totalQ}</td>
       <td class="pts-cell" style="font-weight:600">${p.total}</td>
@@ -1231,15 +1165,10 @@ async function loadRanking() {
     </tr>`;
   }).join('');
 
-  document.getElementById('rank-card').innerHTML = `
-    <div style="overflow-x:auto">
-      <table class="rtable">
-        <thead><tr><th>Pos.</th><th>Nombre</th><th>Rondas</th><th>Correctas</th><th>Puntos</th><th>Nivel</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>`;
-  document.getElementById('rank-updated').textContent =
-    new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('rank-card').innerHTML = `<div style="overflow-x:auto"><table class="rtable">
+    <thead><tr><th>Pos.</th><th>Nombre</th><th>Rondas</th><th>Correctas</th><th>Puntos</th><th>Nivel</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+  document.getElementById('rank-updated').textContent = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
 }
 
 // ════════════════════════════════════════════════════════
@@ -1264,24 +1193,17 @@ async function loadHall() {
 }
 
 // ════════════════════════════════════════════════════════
-//  ADMIN LOGIN — verifica contra contraseña en la NUBE
+//  ADMIN LOGIN
 // ════════════════════════════════════════════════════════
-async function adminLogin() {
+function adminLogin() {
   const pass = document.getElementById('al-pass').value;
   const msg  = document.getElementById('al-msg');
-  msg.innerHTML = `<div class="loading-box" style="padding:8px;"><div class="spin"></div> Verificando…</div>`;
-
-  try {
-    const adminPw = await getAdminPw(); // lee de la nube
-    if (pass === adminPw) {
-      msg.innerHTML = '';
-      document.getElementById('al-pass').value = '';
-      showScreen('admin');
-    } else {
-      showAlert(msg, 'Contraseña incorrecta.', 'red');
-    }
-  } catch(e) {
-    showAlert(msg, 'Error de conexión.', 'red');
+  if (pass === getAdminPw()) {
+    msg.innerHTML = '';
+    document.getElementById('al-pass').value = '';
+    showScreen('admin');
+  } else {
+    showAlert(msg,'Contraseña incorrecta.','red');
   }
 }
 
@@ -1289,16 +1211,16 @@ async function adminLogin() {
 //  ADMIN TABS
 // ════════════════════════════════════════════════════════
 function switchTab(name, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b  => b.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('tab-' + name).classList.add('on');
-  if (name === 'questions') buildQEditor(curQTab || 1);
-  if (name === 'dates')     buildDatesEditor();
-  if (name === 'cycle')     buildCycleTab();
-  if (name === 'settings')  buildSettingsTab();
-  if (name === 'users')     buildUsersTable();
-  if (name === 'results')   buildResultsTable();
+  document.getElementById('tab-'+name).classList.add('on');
+  if (name==='questions') buildQEditor(curQTab||1);
+  if (name==='rounds')    buildRoundsEditor();
+  if (name==='cycle')     buildCycleTab();
+  if (name==='settings')  buildSettingsTab();
+  if (name==='users')     buildUsersTable();
+  if (name==='results')   buildResultsTable();
 }
 
 // ════════════════════════════════════════════════════════
@@ -1308,13 +1230,13 @@ async function buildAdminPanel() {
   dbInvalidate();
   const db       = await dbRead();
   const results  = db.results || [];
-  const users    = db.users || [];
+  const users    = getUsers();
   const rounds   = await getRounds();
   const cycleNum = await getCycleNum();
 
-  const playerSet = new Set(results.map(r => r.name));
-  const avg       = results.length ? Math.round(results.reduce((a,r) => a + r.score, 0) / results.length) : 0;
-  const perfect   = results.filter(r => r.correct === r.total).length;
+  const playerSet = new Set(results.map(r=>r.name));
+  const avg = results.length ? Math.round(results.reduce((a,r)=>a+r.score,0)/results.length) : 0;
+  const perfect = results.filter(r=>r.correct===r.total).length;
 
   document.getElementById('a-stats').innerHTML = `
     <div class="stat-box"><div class="stat-val">${users.length}</div><div class="stat-lbl">Cuentas</div></div>
@@ -1322,79 +1244,65 @@ async function buildAdminPanel() {
     <div class="stat-box"><div class="stat-val">${results.length}</div><div class="stat-lbl">Rondas jugadas</div></div>
     <div class="stat-box"><div class="stat-val">${avg}</div><div class="stat-lbl">Promedio pts</div></div>
     <div class="stat-box"><div class="stat-val">${perfect}</div><div class="stat-lbl">Perfectos</div></div>
-    <div class="stat-box"><div class="stat-val">${cycleNum}</div><div class="stat-lbl">Campeonato #</div></div>`;
+    <div class="stat-box"><div class="stat-val">#${cycleNum}</div><div class="stat-lbl">Campeonato</div></div>`;
 
   const rCounts = {};
-  rounds.forEach(r => rCounts[r.id] = results.filter(res => res.roundId === r.id).length);
+  rounds.forEach(r => rCounts[r.id] = results.filter(res=>res.roundId===r.id).length);
   document.getElementById('a-sessions-card').innerHTML = `
     <div class="card-hdr"><h3>Estado de rondas</h3></div>
     <div style="overflow-x:auto"><table class="dtable"><thead><tr><th>Ronda</th><th>Día</th><th>Apertura</th><th>Estado</th><th>Respuestas</th></tr></thead><tbody>
     ${rounds.map(r => {
-      const st = getRoundStatus(r, rounds);
-      const pill = { available:'<span class="badge badge-ok">Disponible</span>', future:'<span class="badge badge-mid">Próxima</span>', closed:'<span class="badge badge-low">Cerrada</span>' };
-      return `<tr><td><strong>${escHtml(r.label)}</strong></td><td>${escHtml(r.day)} S${r.week}</td>
-        <td style="font-family:'Roboto Mono',monospace;font-size:.82rem;">${r.opens}</td>
-        <td>${pill[st]}</td><td>${rCounts[r.id]}</td></tr>`;
+      const st = getRoundStatus(r,rounds);
+      const pillMap = { available:'<span class="badge badge-ok">Disponible</span>', future:'<span class="badge badge-mid">Próxima</span>', closed:'<span class="badge badge-low">Cerrada</span>' };
+      return `<tr>
+        <td data-label="Ronda"><strong>${escHtml(r.label)}</strong></td>
+        <td data-label="Día">${escHtml(r.day)}</td>
+        <td data-label="Apertura" style="font-family:'Roboto Mono',monospace;font-size:.82rem;">${r.opens}</td>
+        <td data-label="Estado">${pillMap[st]}</td>
+        <td data-label="Respuestas">${rCounts[r.id]||0}</td>
+      </tr>`;
     }).join('')}
     </tbody></table></div>`;
 
   const players = {};
   results.forEach(r => {
-    if (!players[r.name]) players[r.name] = { name:r.name, total:0, played:0, correct:0, totalQ:0 };
-    players[r.name].total   += r.score;
-    players[r.name].played++;
-    players[r.name].correct += r.correct;
-    players[r.name].totalQ  += r.total;
+    if (!players[r.name]) players[r.name]={name:r.name,total:0,played:0,correct:0,totalQ:0};
+    players[r.name].total+=r.score; players[r.name].played++;
+    players[r.name].correct+=r.correct; players[r.name].totalQ+=r.total;
   });
-  const sorted = Object.values(players).sort((a,b) => b.total - a.total);
-  document.getElementById('a-rank-body').innerHTML = sorted.map((p,i) =>
-    `<tr><td>${i+1}</td><td><strong>${escHtml(p.name)}</strong></td><td>${p.played}/4</td>
-     <td>${p.correct}/${p.totalQ}</td>
-     <td style="font-family:'Roboto Mono',monospace;font-weight:600;">${p.total}</td></tr>`
+  const sorted = Object.values(players).sort((a,b)=>b.total-a.total);
+  document.getElementById('a-rank-body').innerHTML = sorted.map((p,i)=>`
+    <tr>
+      <td data-label="#">${i+1}</td>
+      <td data-label="Nombre"><strong>${escHtml(p.name)}</strong></td>
+      <td data-label="Rondas">${p.played}/${rounds.length}</td>
+      <td data-label="Correctas">${p.correct}/${p.totalQ}</td>
+      <td data-label="Puntos" style="font-family:'Roboto Mono',monospace;font-weight:600;">${p.total}</td>
+    </tr>`
   ).join('') || '<tr><td colspan="5"><div class="empty">Sin datos.</div></td></tr>';
 }
 
 // ════════════════════════════════════════════════════════
-//  QUESTION EDITOR — con soporte de bancos por campeonato
+//  QUESTION EDITOR
 // ════════════════════════════════════════════════════════
-let curQTab      = 1;  // ronda activa en el editor
-let curQCycle    = 1;  // campeonato activo en el editor
+let curQTab = 1;
 
 async function buildQEditor(roundId) {
   curQTab = roundId;
-  const cfg        = await getCfg();
-  const cycleNum   = cfg.cycleNum || 1;
-  const bank       = cfg.questionBank || DEFAULT_QUESTION_BANK;
-  const allCycles  = Object.keys(bank).map(Number).sort((a,b) => a - b);
-
-  // Si no hay un ciclo seleccionado válido, usar el actual
-  if (!allCycles.includes(curQCycle)) curQCycle = cycleNum;
-
-  // Info del ciclo activo
-  document.getElementById('qe-cycle-info').textContent =
-    `Editando campeonato #${curQCycle}${curQCycle === cycleNum ? ' (actual)' : ' (futuro)'}`;
-
-  // Tabs de campeonatos
-  document.getElementById('qe-cycle-tabs').innerHTML = allCycles.map(c =>
-    `<button class="btn btn-sm ${c === curQCycle ? 'btn-primary' : 'btn-outline'}" onclick="switchQCycle(${c})">#${c}${c === cycleNum ? ' ★' : ''}</button>`
-  ).join('');
-
   const rounds = await getRounds();
+  const qs     = await getQuestions();
 
-  // Tabs de rondas
   document.getElementById('qe-tabs').innerHTML = rounds.map(r =>
-    `<button class="btn btn-sm ${r.id === roundId ? 'btn-primary' : 'btn-outline'}" onclick="buildQEditor(${r.id})">${escHtml(r.label)}</button>`
+    `<button class="btn btn-sm ${r.id===roundId?'btn-primary':'btn-outline'}" onclick="buildQEditor(${r.id})">${escHtml(r.label)}</button>`
   ).join('');
 
-  // Preguntas del ciclo y ronda seleccionados
-  const cycleQs = bank[curQCycle] || bank[cycleNum] || DEFAULT_QUESTION_BANK[1];
-  const rQs = cycleQs[roundId] || [
-    {q:'',opts:['','','',''],correct:0},
-    {q:'',opts:['','','',''],correct:0},
-    {q:'',opts:['','','',''],correct:0},
+  // Siempre exactamente 2 preguntas por ronda
+  const rQs = qs[roundId] || [
+    { q:'', opts:['','','',''], correct:0 },
+    { q:'', opts:['','','',''], correct:0 },
   ];
-
   const LTRS = ['A','B','C','D'];
+
   const body = document.getElementById('qe-body');
   body.innerHTML = '';
 
@@ -1403,7 +1311,7 @@ async function buildQEditor(roundId) {
     block.className = 'qe-block';
 
     const h4 = document.createElement('h4');
-    h4.textContent = `Pregunta ${qi + 1}`;
+    h4.textContent = `Pregunta ${qi+1}`;
     block.appendChild(h4);
 
     const fieldDiv = document.createElement('div');
@@ -1453,7 +1361,10 @@ async function buildQEditor(roundId) {
       radioLbl.className = 'correct-lbl';
       radioLbl.textContent = '✓ Correcta';
 
-      row.append(badge, optInp, radio, radioLbl);
+      row.appendChild(badge);
+      row.appendChild(optInp);
+      row.appendChild(radio);
+      row.appendChild(radioLbl);
       block.appendChild(row);
     });
 
@@ -1461,144 +1372,248 @@ async function buildQEditor(roundId) {
   });
 }
 
-function switchQCycle(cycleNum) {
-  curQCycle = cycleNum;
-  buildQEditor(curQTab);
-}
-
-/** Agrega un nuevo banco de preguntas para el próximo campeonato */
-async function addQuestionBank() {
-  const cfg      = await getCfg();
-  const bank     = cfg.questionBank || DEFAULT_QUESTION_BANK;
-  const existing = Object.keys(bank).map(Number).sort((a,b) => a - b);
-  const newCycle = existing[existing.length - 1] + 1;
-
-  // Copiar el banco del último ciclo como base
-  const lastCycle = existing[existing.length - 1];
-  bank[newCycle]  = JSON.parse(JSON.stringify(bank[lastCycle]));
-
+async function saveQuestions() {
   const db = await dbRead();
   if (!db.config) db.config = {};
-  db.config.questionBank = bank;
-  await dbWrite(db);
-  dbInvalidate();
+  const currentQs = await getQuestions();
 
-  curQCycle = newCycle;
-  buildQEditor(1);
-  showToast(`✓ Banco Campeonato #${newCycle} creado (copiado del #${lastCycle})`);
-}
-
-async function saveQuestions() {
-  const cfg  = await getCfg();
-  const bank = cfg.questionBank || DEFAULT_QUESTION_BANK;
-
-  // Leer preguntas del formulario
-  const cycleQs = bank[curQCycle] || {};
-  const roundQsSource = cycleQs[curQTab] || [
-    {q:'',opts:['','','',''],correct:0},
-    {q:'',opts:['','','',''],correct:0},
-    {q:'',opts:['','','',''],correct:0},
-  ];
-
-  const rQs = roundQsSource.map((_,qi) => {
-    const q    = document.getElementById(`qe-q-${qi}`)?.value.trim() || '';
-    const opts = [0,1,2,3].map(oi => document.getElementById(`qe-o-${qi}-${oi}`)?.value.trim() || '');
+  const rQs = (currentQs[curQTab]||[{q:'',opts:['','','',''],correct:0},{q:'',opts:['','','',''],correct:0}]).map((_,qi) => {
+    const q    = document.getElementById(`qe-q-${qi}`)?.value.trim()||'';
+    const opts = [0,1,2,3].map(oi => document.getElementById(`qe-o-${qi}-${oi}`)?.value.trim()||'');
     const cr   = document.querySelector(`input[name="qe-r-${qi}"]:checked`);
     return { q, opts, correct: cr ? parseInt(cr.value) : 0 };
   });
 
-  bank[curQCycle] = { ...cycleQs, [curQTab]: rQs };
-
-  const db = await dbRead();
-  if (!db.config) db.config = {};
-  db.config.questionBank = bank;
+  if (!db.config.questions) db.config.questions = { ...currentQs };
+  db.config.questions[curQTab] = rQs;
   await dbWrite(db);
   dbInvalidate();
-  showToast(`✓ Preguntas Campeonato #${curQCycle} Ronda ${curQTab} guardadas`);
+  showToast(`✓ Preguntas ${escHtml((await getRounds()).find(r=>r.id===curQTab)?.label||'Ronda '+curQTab)} guardadas`);
 }
 
 // ════════════════════════════════════════════════════════
-//  DATES EDITOR
+//  ROUNDS EDITOR (admin — agregar/quitar/editar rondas)
 // ════════════════════════════════════════════════════════
-async function buildDatesEditor() {
-  const rounds = await getRounds();
-  document.getElementById('dates-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    ${rounds.map(r => `
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;">
-        <div class="sec-label">${escHtml(r.label)} · ${escHtml(r.day)} S${r.week}</div>
-        <div class="field" style="margin-bottom:0;">
-          <label>Fecha de apertura</label>
-          <input type="date" id="de-${r.id}" value="${r.opens}">
-        </div>
-      </div>`).join('')}
-    </div>`;
+let _editRounds = [];
+
+async function buildRoundsEditor() {
+  _editRounds = JSON.parse(JSON.stringify(await getRounds())); // deep copy
+  renderRoundsEditor();
 }
 
-async function saveDates() {
-  const db = await dbRead();
-  if (!db.config) db.config = {};
-  const rounds = (await getRounds()).map(r => {
-    const val = document.getElementById(`de-${r.id}`)?.value;
-    return val ? { ...r, opens:val } : r;
+function renderRoundsEditor() {
+  const body = document.getElementById('rounds-editor-body');
+  if (!body) return;
+  body.innerHTML = '';
+
+  _editRounds.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'round-editor-row';
+    row.style.cssText = 'display:grid;grid-template-columns:36px 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;';
+
+    // Número
+    const num = document.createElement('div');
+    num.style.cssText = 'font-family:Roboto Mono,monospace;font-size:.75rem;color:var(--muted2);font-weight:600;';
+    num.textContent = `R${i+1}`;
+
+    // Label
+    const labelInp = document.createElement('input');
+    labelInp.type = 'text';
+    labelInp.value = r.label;
+    labelInp.placeholder = 'Nombre de ronda';
+    labelInp.style.cssText = 'padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:.85rem;font-family:Inter,sans-serif;outline:none;';
+    labelInp.oninput = e => { _editRounds[i].label = e.target.value; };
+
+    // Day
+    const dayInp = document.createElement('input');
+    dayInp.type = 'text';
+    dayInp.value = r.day;
+    dayInp.placeholder = 'Lunes / Martes…';
+    dayInp.style.cssText = 'padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:.85rem;font-family:Inter,sans-serif;outline:none;';
+    dayInp.oninput = e => { _editRounds[i].day = e.target.value; };
+
+    // Date
+    const dateInp = document.createElement('input');
+    dateInp.type = 'date';
+    dateInp.value = r.opens;
+    dateInp.style.cssText = 'padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:.85rem;font-family:Inter,sans-serif;outline:none;';
+    dateInp.oninput = e => { _editRounds[i].opens = e.target.value; };
+
+    // Delete btn
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕';
+    delBtn.className = 'btn btn-red btn-sm';
+    delBtn.style.padding = '6px 10px';
+    delBtn.onclick = () => { _editRounds.splice(i,1); renderRoundsEditor(); };
+
+    row.appendChild(num);
+    row.appendChild(labelInp);
+    row.appendChild(dayInp);
+    row.appendChild(dateInp);
+    row.appendChild(delBtn);
+    body.appendChild(row);
   });
-  db.config.rounds = rounds;
+
+  if (!_editRounds.length) {
+    body.innerHTML = '<div class="empty">No hay rondas. Agregá al menos una.</div>';
+  }
+}
+
+function addRound() {
+  const nextId = _editRounds.length ? Math.max(..._editRounds.map(r=>r.id))+1 : 1;
+  // fecha por defecto: hoy + 7 días
+  const d = new Date(); d.setDate(d.getDate()+7);
+  const opens = d.toISOString().split('T')[0];
+  _editRounds.push({ id:nextId, label:`Ronda ${nextId}`, day:'', opens });
+  renderRoundsEditor();
+}
+
+async function saveRounds() {
+  if (!_editRounds.length) { showToast('Necesitás al menos una ronda'); return; }
+  // Reasignar ids secuenciales
+  _editRounds.forEach((r,i) => { r.id = i+1; });
+  const db = await dbRead();
+  if (!db.config) db.config = {};
+  db.config.rounds = _editRounds;
+  // Asegurar que las preguntas existan para cada ronda
+  const currentQs = db.config.questions || DEFAULT_QUESTIONS;
+  _editRounds.forEach(r => {
+    if (!currentQs[r.id]) {
+      currentQs[r.id] = [
+        { q:'', opts:['','','',''], correct:0 },
+        { q:'', opts:['','','',''], correct:0 },
+      ];
+    }
+  });
+  db.config.questions = currentQs;
   await dbWrite(db);
   dbInvalidate();
-  await buildDatesEditor();
-  await buildRoundChips('dash-rounds');
   await buildRoundChips('home-rounds');
-  showToast('✓ Fechas guardadas');
+  await buildRoundChips('dash-rounds');
+  showToast('✓ Rondas guardadas');
 }
 
 // ════════════════════════════════════════════════════════
-//  USERS TABLE — lee de la nube
+//  USERS TABLE
 // ════════════════════════════════════════════════════════
 async function buildUsersTable() {
+  const users   = getUsers();
   const db      = await dbRead();
-  const users   = db.users || [];
   const results = db.results || [];
-  const cum    = {};
-  const played = {};
+  const cum     = {};
+  const played  = {};
   results.forEach(r => {
     cum[r.name]    = (cum[r.name]    || 0) + r.score;
     played[r.name] = (played[r.name] || 0) + 1;
   });
+  const rounds = await getRounds();
+
   document.getElementById('a-users-body').innerHTML = users.map((u,i) => `
     <tr>
       <td><input type="checkbox" class="u-chk" data-idx="${i}"></td>
-      <td><strong>${escHtml(u.name)}</strong></td>
-      <td>${played[u.name] || 0}/4</td>
-      <td style="font-family:'Roboto Mono',monospace">${cum[u.name] || 0}</td>
-      <td style="color:var(--muted2);font-size:.8rem;">${escHtml(u.created || '')}</td>
+      <td data-label="Nombre"><strong>${escHtml(u.name)}</strong></td>
+      <td data-label="Rondas">${played[u.name]||0}/${rounds.length}</td>
+      <td data-label="Puntos" style="font-family:'Roboto Mono',monospace">${cum[u.name]||0}</td>
+      <td data-label="Registro" style="color:var(--muted2);font-size:.8rem;">${escHtml(u.created||'')}</td>
+      <td data-label="Acciones">
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-outline btn-sm" onclick="editUserModal(${i})">Editar</button>
+          <button class="btn btn-red btn-sm" onclick="resetUserPoints('${escHtml(u.name).replace(/'/g,"\\'")}')">Reset pts</button>
+        </div>
+      </td>
     </tr>`
-  ).join('') || '<tr><td colspan="5"><div class="empty">Sin usuarios.</div></td></tr>';
+  ).join('') || '<tr><td colspan="6"><div class="empty">Sin usuarios.</div></td></tr>';
 }
 
 function toggleAll(cls, master) {
-  document.querySelectorAll('.' + cls).forEach(c => c.checked = master.checked);
+  document.querySelectorAll('.'+cls).forEach(c => c.checked = master.checked);
 }
 
-async function deleteSelUsers() {
-  const checked = [...document.querySelectorAll('.u-chk:checked')].map(c => parseInt(c.dataset.idx));
+function deleteSelUsers() {
+  const checked = [...document.querySelectorAll('.u-chk:checked')].map(c=>parseInt(c.dataset.idx));
   if (!checked.length) { showToast('Seleccioná usuarios primero'); return; }
   if (!confirm(`¿Eliminar ${checked.length} cuenta(s)?`)) return;
-  const db    = await dbRead();
-  const users = db.users || [];
+  const users = getUsers();
   const set   = new Set(checked);
-  db.users    = users.filter((_,i) => !set.has(i));
-  await dbWrite(db);
-  dbInvalidate();
+  ls.set(SK.users, users.filter((_,i)=>!set.has(i)));
   buildUsersTable();
   showToast('✓ Cuentas eliminadas');
 }
 
-async function clearAllUsers() {
-  if (!confirm('¿Borrar TODAS las cuentas? Esto cierra todas las sesiones activas.')) return;
+// Reset puntos de un usuario específico
+async function resetUserPoints(name) {
+  if (!confirm(`¿Borrar todos los resultados de "${name}"?`)) return;
   const db = await dbRead();
-  db.users = [];
+  db.results = (db.results||[]).filter(r => r.name !== name);
   await dbWrite(db);
   dbInvalidate();
+  buildUsersTable();
+  buildAdminPanel();
+  showToast(`✓ Puntos de ${escHtml(name)} borrados`);
+}
+
+// Modal para agregar/editar usuario
+let _editUserIdx = -1;
+function showAddUserModal() {
+  _editUserIdx = -1;
+  document.getElementById('modal-user-title').textContent = 'Nueva cuenta';
+  document.getElementById('mu-name').value = '';
+  document.getElementById('mu-pass').value = '';
+  document.getElementById('mu-msg').innerHTML = '';
+  openModal('modal-user');
+}
+
+function editUserModal(idx) {
+  _editUserIdx = idx;
+  const users = getUsers();
+  const u = users[idx];
+  document.getElementById('modal-user-title').textContent = 'Editar cuenta';
+  document.getElementById('mu-name').value = u.name;
+  document.getElementById('mu-pass').value = u.pass;
+  document.getElementById('mu-msg').innerHTML = '';
+  openModal('modal-user');
+}
+
+function saveUserModal() {
+  const name = (document.getElementById('mu-name').value||'').trim();
+  const pass = document.getElementById('mu-pass').value;
+  const msg  = document.getElementById('mu-msg');
+  msg.innerHTML = '';
+
+  if (name.length < 2) { showAlert(msg,'Mínimo 2 caracteres.','red'); return; }
+  if (pass.length < 4) { showAlert(msg,'Contraseña: mínimo 4 caracteres.','red'); return; }
+
+  const users = getUsers();
+  if (_editUserIdx === -1) {
+    // Nuevo
+    if (users.find(u => u.name.toLowerCase()===name.toLowerCase())) {
+      showAlert(msg,'Ya existe una cuenta con ese nombre.','amber'); return;
+    }
+    users.push({ name, pass, created: new Date().toLocaleDateString('es-AR') });
+  } else {
+    // Editar
+    const oldName = users[_editUserIdx].name;
+    users[_editUserIdx] = { ...users[_editUserIdx], name, pass };
+    // Si cambió el nombre, actualizar en resultados también
+    if (oldName !== name) {
+      // Actualizar resultados en background
+      (async () => {
+        const db = await dbRead();
+        if (db.results) db.results.forEach(r => { if (r.name===oldName) r.name=name; });
+        await dbWrite(db);
+        dbInvalidate();
+      })();
+    }
+  }
+  ls.set(SK.users, users);
+  closeModal('modal-user');
+  buildUsersTable();
+  showToast('✓ Cuenta guardada');
+}
+
+async function clearAllUsers() {
+  if (!confirm('¿Borrar TODAS las cuentas?')) return;
+  ls.set(SK.users, []);
   ls.rm(SK.session);
   updateHeader();
   buildUsersTable();
@@ -1609,32 +1624,33 @@ async function clearAllUsers() {
 //  RESULTS TABLE
 // ════════════════════════════════════════════════════════
 async function buildResultsTable() {
-  const db      = await dbRead();
+  const db = await dbRead();
   const results = db.results || [];
-  const cum     = {};
-  results.forEach(r => { cum[r.name] = (cum[r.name] || 0) + r.score; });
-  const sorted  = [...results].sort((a,b) => b.ts - a.ts);
+  const cum = {};
+  results.forEach(r => { cum[r.name]=(cum[r.name]||0)+r.score; });
+  const sorted = [...results].sort((a,b) => b.ts-a.ts);
+
   document.getElementById('a-results-body').innerHTML = sorted.map((r,i) => `
     <tr>
       <td><input type="checkbox" class="r-chk" data-idx="${i}"></td>
-      <td><strong>${escHtml(r.name)}</strong></td>
-      <td><span class="tag">${escHtml(r.roundLabel)}</span></td>
-      <td>${r.correct}/${r.total}</td>
-      <td style="font-family:'Roboto Mono',monospace">${r.score}</td>
-      <td style="font-family:'Roboto Mono',monospace;font-weight:600">${cum[r.name]}</td>
-      <td style="color:var(--muted2);font-size:.8rem;">${escHtml(r.date)}</td>
+      <td data-label="Nombre"><strong>${escHtml(r.name)}</strong></td>
+      <td data-label="Ronda"><span class="tag">${escHtml(r.roundLabel)}</span></td>
+      <td data-label="Correctas">${r.correct}/${r.total}</td>
+      <td data-label="Pts" style="font-family:'Roboto Mono',monospace">${r.score}</td>
+      <td data-label="Total" style="font-family:'Roboto Mono',monospace;font-weight:600">${cum[r.name]}</td>
+      <td data-label="Fecha" style="color:var(--muted2);font-size:.8rem;">${escHtml(r.date)}</td>
     </tr>`
   ).join('') || '<tr><td colspan="7"><div class="empty">Sin resultados.</div></td></tr>';
 }
 
 async function deleteSelResults() {
-  const db      = await dbRead();
-  const sorted  = [...(db.results || [])].sort((a,b) => b.ts - a.ts);
-  const checked = [...document.querySelectorAll('.r-chk:checked')].map(c => parseInt(c.dataset.idx));
+  const db = await dbRead();
+  const sorted = [...(db.results||[])].sort((a,b) => b.ts-a.ts);
+  const checked = [...document.querySelectorAll('.r-chk:checked')].map(c=>parseInt(c.dataset.idx));
   if (!checked.length) { showToast('Seleccioná resultados primero'); return; }
   if (!confirm(`¿Eliminar ${checked.length} resultado(s)?`)) return;
-  const toDelete = new Set(checked.map(i => sorted[i].ts));
-  db.results = (db.results || []).filter(r => !toDelete.has(r.ts));
+  const toDelete = new Set(checked.map(i=>sorted[i].ts));
+  db.results = (db.results||[]).filter(r=>!toDelete.has(r.ts));
   await dbWrite(db);
   dbInvalidate();
   buildResultsTable();
@@ -1658,26 +1674,30 @@ async function buildCycleTab() {
   const db      = await dbRead();
   const results = db.results || [];
   const players = {};
-  results.forEach(r => { players[r.name] = (players[r.name] || 0) + r.score; });
-  const sorted = Object.entries(players).sort((a,b) => b[1] - a[1]);
+  results.forEach(r => { players[r.name]=(players[r.name]||0)+r.score; });
+  const sorted = Object.entries(players).sort((a,b) => b[1]-a[1]);
 
   const el = document.getElementById('cycle-preview');
   if (sorted.length) {
-    const [name, pts] = sorted[0];
+    const [name,pts] = sorted[0];
     el.innerHTML = `<div class="alert alert-green">🏆 Líder actual: <strong>${escHtml(name)}</strong> con <strong>${pts} puntos</strong></div>`;
   } else {
     el.innerHTML = `<div class="alert alert-gray">Sin resultados en este campeonato.</div>`;
   }
 
-  const hall   = db.hall || [];
+  const hall = db.hall || [];
   const hallEl = document.getElementById('admin-hall');
-  if (!hall.length) { hallEl.innerHTML = '<div class="empty">Sin campeones archivados.</div>'; return; }
+  if (!hall.length) {
+    hallEl.innerHTML = '<div class="empty">Sin campeones archivados.</div>';
+    return;
+  }
   hallEl.innerHTML = [...hall].reverse().map(w => `
     <div class="winner-row">
       <span class="winner-cycle">#${w.cycle}</span>
       <span class="winner-name">🏆 ${escHtml(w.name)}</span>
       <span class="winner-pts">${w.total} pts</span>
       <span style="font-size:.72rem;color:var(--muted2);">${escHtml(w.date)}</span>
+      <button class="btn btn-red btn-sm" onclick="deleteHallEntry(${w.cycle})">✕</button>
     </div>`).join('');
 }
 
@@ -1686,58 +1706,42 @@ async function closeCycle() {
   const results = db.results || [];
   if (!results.length) { showToast('Sin resultados para archivar'); return; }
 
-  const players  = {};
-  results.forEach(r => { players[r.name] = (players[r.name] || 0) + r.score; });
-  const sorted   = Object.entries(players).sort((a,b) => b[1] - a[1]);
+  const players = {};
+  results.forEach(r => { players[r.name]=(players[r.name]||0)+r.score; });
+  const sorted = Object.entries(players).sort((a,b) => b[1]-a[1]);
   const [winName, winPts] = sorted[0];
   const cycleNum = await getCycleNum();
 
   if (!confirm(`¿Cerrar Campeonato #${cycleNum}?\n\n🏆 Ganador: ${winName} (${winPts} pts)\n\nEsto archivará al ganador, reseteará los puntos y avanzará las fechas 14 días.`)) return;
 
   if (!db.config) db.config = {};
-
   const hall = db.hall || [];
   hall.push({ cycle:cycleNum, name:winName, total:winPts, date:new Date().toLocaleDateString('es-AR') });
 
-  // Avanzar fechas 14 días
   const rounds = (await getRounds()).map(r => {
-    const d = parseDate(r.opens);
-    d.setDate(d.getDate() + 14);
+    const d = parseDate(r.opens); d.setDate(d.getDate()+14);
     return { ...r, opens: d.toISOString().split('T')[0] };
   });
 
-  // Asegurar que existe un banco de preguntas para el nuevo campeonato
-  const bank       = db.config.questionBank || DEFAULT_QUESTION_BANK;
-  const newCycle   = cycleNum + 1;
-  if (!bank[newCycle]) {
-    // Copiar el banco actual como plantilla para el nuevo campeonato
-    bank[newCycle] = JSON.parse(JSON.stringify(bank[cycleNum] || bank[1] || DEFAULT_QUESTION_BANK[1]));
-  }
-
-  db.hall           = hall;
-  db.results        = [];
-  db.config.cycleNum      = newCycle;
-  db.config.rounds        = rounds;
-  db.config.questionBank  = bank;
-
+  db.hall   = hall;
+  db.results = [];
+  db.config  = { ...db.config, cycleNum: cycleNum+1, rounds };
   await dbWrite(db);
   dbInvalidate();
 
   await buildAdminPanel();
   await buildCycleTab();
-  await buildDatesEditor();
   await buildRoundChips('home-rounds');
   await buildRoundChips('dash-rounds');
-  showToast(`🏆 ${escHtml(winName)} archivado. ¡Campeonato #${newCycle} iniciado!`);
+  showToast(`🏆 ${escHtml(winName)} archivado. ¡Campeonato #${cycleNum+1} iniciado!`);
 }
 
 async function resetCycle() {
-  if (!confirm('¿Resetear el campeonato sin premiar a nadie? Los resultados se perderán.')) return;
-  const db       = await dbRead();
+  if (!confirm('¿Resetear el campeonato sin premiar a nadie? Los datos se perderán.')) return;
+  const db = await dbRead();
   if (!db.config) db.config = {};
-  const cycleNum = await getCycleNum();
-  db.results           = [];
-  db.config.cycleNum   = cycleNum + 1;
+  db.results = [];
+  db.config.cycleNum = (await getCycleNum())+1;
   await dbWrite(db);
   dbInvalidate();
   await buildAdminPanel();
@@ -1748,11 +1752,22 @@ async function resetCycle() {
 async function clearHall() {
   if (!confirm('¿Borrar todo el historial de campeones?')) return;
   const db = await dbRead();
-  db.hall  = [];
+  db.hall = [];
   await dbWrite(db);
   dbInvalidate();
   buildCycleTab();
   showToast('✓ Historial borrado');
+}
+
+// Eliminar entrada individual del salón de campeones
+async function deleteHallEntry(cycle) {
+  if (!confirm(`¿Eliminar al campeón del campeonato #${cycle}?`)) return;
+  const db = await dbRead();
+  db.hall = (db.hall||[]).filter(w => w.cycle !== cycle);
+  await dbWrite(db);
+  dbInvalidate();
+  buildCycleTab();
+  showToast('✓ Entrada eliminada');
 }
 
 // ════════════════════════════════════════════════════════
@@ -1766,8 +1781,8 @@ async function buildSettingsTab() {
 }
 
 async function saveGeneralCfg() {
-  const pts   = parseInt(document.getElementById('cfg-pts').value) || 150;
-  const title = document.getElementById('cfg-title').value.trim() || 'PreguntaQuiz';
+  const pts   = parseInt(document.getElementById('cfg-pts').value)||150;
+  const title = document.getElementById('cfg-title').value.trim()||'Quiz Académico';
   const msg   = document.getElementById('cfg-msg');
   const db    = await dbRead();
   if (!db.config) db.config = {};
@@ -1775,154 +1790,127 @@ async function saveGeneralCfg() {
   db.config.eventTitle = title;
   await dbWrite(db);
   dbInvalidate();
-  msg.style.color  = 'var(--green)';
-  msg.textContent  = '✓ Guardado.';
-  setTimeout(() => msg.textContent = '', 3000);
+  msg.style.color = 'var(--green)'; msg.textContent = '✓ Guardado.';
+  setTimeout(()=>msg.textContent='',3000);
   showToast('✓ Configuración guardada');
+  buildHome();
 }
 
-/**
- * Cambia la contraseña admin EN LA NUBE.
- * FIX: antes guardaba en localStorage → no funcionaba entre dispositivos.
- */
-async function changeAdminPw() {
+function changeAdminPw() {
   const old  = document.getElementById('pw-old').value;
   const nw   = document.getElementById('pw-new').value;
   const conf = document.getElementById('pw-conf').value;
   const msg  = document.getElementById('pw-msg');
+  if (old !== getAdminPw()) { msg.style.color='var(--red)'; msg.textContent='Contraseña actual incorrecta.'; return; }
+  if (nw.length<4)           { msg.style.color='var(--red)'; msg.textContent='Mínimo 4 caracteres.'; return; }
+  if (nw!==conf)             { msg.style.color='var(--red)'; msg.textContent='No coinciden.'; return; }
+  ls.set(SK.adminPw, nw);
+  ['pw-old','pw-new','pw-conf'].forEach(id=>document.getElementById(id).value='');
+  msg.style.color='var(--green)'; msg.textContent='✓ Cambiada.';
+  setTimeout(()=>msg.textContent='',3000);
+  showToast('✓ Contraseña actualizada');
+}
 
-  const adminPw = await getAdminPw();
-  if (old !== adminPw) { msg.style.color = 'var(--red)'; msg.textContent = 'Contraseña actual incorrecta.'; return; }
-  if (nw.length < 4)   { msg.style.color = 'var(--red)'; msg.textContent = 'Mínimo 4 caracteres.'; return; }
-  if (nw !== conf)     { msg.style.color = 'var(--red)'; msg.textContent = 'No coinciden.'; return; }
+// Resetear TODO a fábrica
+async function resetAllData() {
+  if (!confirm('⚠ ¿Resetear TODO a valores de fábrica?\n\nEsto borrará: todos los resultados, todas las cuentas, toda la configuración y el salón de campeones.\n\nEsta acción es IRREVERSIBLE.')) return;
+  if (!confirm('¿Estás seguro? Esta acción no se puede deshacer.')) return;
 
-  const db = await dbRead();
-  if (!db.config) db.config = {};
-  db.config.adminPw = nw;
-  await dbWrite(db);
+  ls.rm(SK.users);
+  ls.rm(SK.session);
+  ls.rm(SK.local);
+  ls.rm(SK.adminPw);
+
+  const freshDb = { results:[], hall:[], config: { ...DEFAULT_CFG } };
+  await dbWrite(freshDb);
   dbInvalidate();
 
-  ['pw-old','pw-new','pw-conf'].forEach(id => document.getElementById(id).value = '');
-  msg.style.color = 'var(--green)';
-  msg.textContent = '✓ Cambiada y sincronizada en la nube.';
-  setTimeout(() => msg.textContent = '', 3000);
-  showToast('✓ Contraseña actualizada en todos los dispositivos');
+  updateHeader();
+  showToast('✓ Todo reseteado a valores de fábrica');
+  showScreen('home');
 }
 
 // ════════════════════════════════════════════════════════
 //  EXPORT CSV
 // ════════════════════════════════════════════════════════
 async function exportCSV() {
-  const db       = await dbRead();
-  const results  = db.results || [];
+  const db = await dbRead();
+  const results = db.results||[];
   if (!results.length) { showToast('Sin datos para exportar'); return; }
   const cycleNum = await getCycleNum();
-  const cum      = {};
-  results.forEach(r => { cum[r.name] = (cum[r.name] || 0) + r.score; });
+  const cum = {};
+  results.forEach(r=>{ cum[r.name]=(cum[r.name]||0)+r.score; });
   const header = 'Campeonato,Nombre,Ronda,Correctas,Total,Pts_Ronda,Pts_Total,Fecha\n';
-  const rows   = results.map(r =>
-    `${cycleNum},"${r.name}","${r.roundLabel}",${r.correct},${r.total},${r.score},${cum[r.name]},"${r.date}"`
-  ).join('\n');
-  const blob = new Blob([header + rows], { type:'text/csv;charset=utf-8;' });
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = `quiz_campeonato${cycleNum}_${new Date().toISOString().slice(0,10)}.csv`;
+  const rows   = results.map(r=>`${cycleNum},"${r.name}","${r.roundLabel}",${r.correct},${r.total},${r.score},${cum[r.name]},"${r.date}"`).join('\n');
+  const blob   = new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `quiz_camp${cycleNum}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   showToast('✓ CSV descargado');
 }
 
 // ════════════════════════════════════════════════════════
-//  COUNTDOWN — con cancelación automática si el elemento desaparece
+//  COUNTDOWN
 // ════════════════════════════════════════════════════════
 function startCountdown(elId, target) {
-  let iid;
+  let intervalId;
   function tick() {
     const el = document.getElementById(elId);
-    if (!el) { clearInterval(iid); return; }
+    if (!el) { clearInterval(intervalId); return; }
     const ms = target - new Date();
-    if (ms <= 0) { el.textContent = '¡Ya disponible!'; clearInterval(iid); return; }
-    const d = Math.floor(ms / 86400000);
-    const h = Math.floor((ms % 86400000) / 3600000);
-    const m = Math.floor((ms % 3600000) / 60000);
-    const s = Math.floor((ms % 60000) / 1000);
-    el.textContent = d > 0
-      ? `${d}d ${h}h ${String(m).padStart(2,'0')}m`
-      : `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    if (ms <= 0) { el.textContent = '¡Ya disponible!'; clearInterval(intervalId); return; }
+    const d = Math.floor(ms/86400000);
+    const h = Math.floor((ms%86400000)/3600000);
+    const m = Math.floor((ms%3600000)/60000);
+    const s = Math.floor((ms%60000)/1000);
+    el.textContent = d>0 ? `${d}d ${h}h ${String(m).padStart(2,'0')}m` : `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
   }
   tick();
-  iid = setInterval(tick, 1000);
+  intervalId = setInterval(tick, 1000);
 }
+
+// ════════════════════════════════════════════════════════
+//  MODAL UTILS
+// ════════════════════════════════════════════════════════
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'flex'; }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'none'; }
+}
+// Cerrar modal al clickear el fondo
+document.addEventListener('click', e => {
+  const modals = ['modal-user'];
+  modals.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && e.target === el) closeModal(id);
+  });
+});
 
 // ════════════════════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════════════════════
 function showAlert(el, msg, type) {
   const map = { green:'alert-green', red:'alert-red', amber:'alert-amber', blue:'alert-blue' };
-  el.innerHTML = `<div class="alert ${map[type] || 'alert-gray'}">${msg}</div>`;
+  el.innerHTML = `<div class="alert ${map[type]||'alert-gray'}">${msg}</div>`;
 }
 
-/** Escapa todos los caracteres HTML especiales para prevenir XSS */
 function escHtml(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ════════════════════════════════════════════════════════
-//  MIGRACIÓN DE DATOS LEGACY
-//  Si la DB de la nube tiene datos del formato viejo (usuarios en localStorage),
-//  migramos automáticamente al nuevo formato (usuarios en la nube).
-// ════════════════════════════════════════════════════════
-async function migrateIfNeeded() {
-  const db = await dbRead();
-  let changed = false;
-
-  // Migrar usuarios desde localStorage al campo db.users en la nube
-  const localUsers = ls.get('qz2_users') || ls.get('pq_users') || [];
-  if (localUsers.length > 0 && (!db.users || db.users.length === 0)) {
-    db.users = localUsers;
-    changed = true;
-    console.log(`Migrados ${localUsers.length} usuarios desde localStorage a la nube.`);
-  }
-
-  // Migrar contraseña admin desde localStorage
-  const localAdminPw = ls.get('qz2_adminpw') || ls.get('pq_adminpw');
-  if (localAdminPw && (!db.config?.adminPw || db.config.adminPw === 'admin123')) {
-    if (!db.config) db.config = {};
-    db.config.adminPw = localAdminPw;
-    changed = true;
-    console.log('Migrada contraseña admin a la nube.');
-  }
-
-  // Migrar estructura de preguntas vieja (config.questions) al nuevo banco
-  if (db.config?.questions && !db.config?.questionBank) {
-    const cycleNum = db.config.cycleNum || 1;
-    if (!db.config) db.config = {};
-    db.config.questionBank = { [cycleNum]: db.config.questions };
-    changed = true;
-    console.log('Migradas preguntas al formato de banco por campeonato.');
-  }
-
-  // Asegurar campo users en la raíz
-  if (!db.users) {
-    db.users = [];
-    changed = true;
-  }
-
-  if (changed) {
-    await dbWrite(db);
-    dbInvalidate();
-  }
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
 // ════════════════════════════════════════════════════════
@@ -1930,20 +1918,7 @@ async function migrateIfNeeded() {
 // ════════════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
   updateHeader();
-
-  // Mostrar spinner mientras carga
-  document.getElementById('home-status').innerHTML =
-    '<div class="loading-box" style="padding:16px;"><div class="spin"></div> Conectando…</div>';
-
-  try {
-    await migrateIfNeeded();
-    await buildHome();
-  } catch(e) {
-    console.error('Init error:', e);
-    await buildHome();
-  }
-
-  // Si hay sesión activa, ir al dashboard
+  await buildHome();
   if (getCurUser()) {
     showScreen('dash');
   }
@@ -1951,49 +1926,3 @@ window.addEventListener('DOMContentLoaded', async () => {
 </script>
 </body>
 </html>
-
-<!--
-════════════════════════════════════════════════════════════════
-  CORRECCIONES Y CAMBIOS — PreguntaQuiz
-════════════════════════════════════════════════════════════════
-
-PROBLEMA 1: Cuentas no accesibles desde otros dispositivos
-  FIX: db.users ahora vive en JSONBin (la nube), NO en localStorage.
-  doRegister() guarda el nuevo usuario en db.users con await dbWrite().
-  doLogin() lee db.users con await dbRead() y verifica contra la nube.
-  Los usuarios pueden loguearse desde cualquier dispositivo.
-
-PROBLEMA 2: Contraseña admin solo local
-  FIX: db.config.adminPw guardado en la nube.
-  adminLogin() llama await getAdminPw() que lee de la nube.
-  changeAdminPw() guarda la nueva contraseña en db.config.adminPw en la nube.
-  Aplica universalmente en todos los dispositivos al instante.
-
-PROBLEMA 3: Puntos no universales
-  FIX RAÍZ: getRounds(), getQuestions(), getPTS(), getCycleNum() son ahora
-  ASÍNCRONOS y siempre leen de dbRead() (nube), nunca de localStorage directo.
-  Todos sus llamadores (buildDash, startQuiz, checkAnswer, loadRanking, etc.)
-  actualizados con async/await.
-
-PROBLEMA 4: Preguntas iguales en todos los campeonatos
-  FIX: Nuevo sistema de "banco de preguntas por campeonato".
-  Estructura: db.config.questionBank = { [cycleNum]: { [roundId]: [...] } }
-  El editor de preguntas muestra tabs por campeonato (#1, #2, etc.).
-  Al cerrar un campeonato, se crea automáticamente el banco del nuevo ciclo
-  (copiando el anterior como base para editar).
-  Botón "+ Nuevo banco" para crear preguntas del próximo campeonato por adelantado.
-
-PROBLEMA 5: Nombre del app
-  Cambiado a "PreguntaQuiz" en header, title, defaults y textos.
-
-EXTRA — Migración automática:
-  migrateIfNeeded() detecta datos del formato viejo (localStorage) y los
-  mueve a la nube al primer arranque, sin perder datos existentes.
-
-EXTRA — Race condition en dbRead:
-  _dbPending evita múltiples fetch() simultáneos si dbRead() se llama
-  varias veces en rápida sucesión.
-
-EXTRA — deleteSelUsers ahora también usa la nube (antes solo localStorage).
-════════════════════════════════════════════════════════════════
--->
