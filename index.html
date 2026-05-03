@@ -2261,3 +2261,63 @@ async function createNewCycle() {
 }
 
 })();
+/* ===============================
+   🏆 BOTÓN NUEVO CAMPEONATO (FIXED)
+================================= */
+
+(function(){
+
+const _origBuildAdminPanel = buildAdminPanel;
+
+buildAdminPanel = async function() {
+  await _origBuildAdminPanel();
+
+  setTimeout(() => {
+    const tab = document.getElementById('tab-cycle');
+    if (!tab) return;
+
+    if (document.getElementById('btn-new-cycle')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'btn-new-cycle';
+    btn.className = 'btn btn-green';
+    btn.textContent = '➕ Crear nuevo campeonato';
+
+    btn.onclick = createNewCycle;
+
+    tab.prepend(btn);
+  }, 300);
+};
+
+
+async function createNewCycle() {
+  if (!confirm('¿Crear un nuevo campeonato?')) return;
+
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  // asegurar estructuras
+  if (!cfg.questionBank) cfg.questionBank = {};
+
+  const oldCycle = cfg.cycleNum || 1;
+  const newCycle = oldCycle + 1;
+
+  // copiar preguntas del ciclo anterior (si existen)
+  if (cfg.questionBank[oldCycle]) {
+    cfg.questionBank[newCycle] =
+      JSON.parse(JSON.stringify(cfg.questionBank[oldCycle]));
+  } else {
+    cfg.questionBank[newCycle] = {};
+  }
+
+  cfg.cycleNum = newCycle;
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast(`🏆 Campeonato #${newCycle} creado`);
+  buildAdminPanel();
+}
+
+})();
