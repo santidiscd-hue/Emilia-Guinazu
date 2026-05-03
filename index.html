@@ -2373,11 +2373,111 @@ async function deleteCurrentCycle() {
 
   showToast('🗑 Campeonato eliminado');
   buildAdminPanel();
+  /* ===============================
+   🏆 BOTONES CAMPEONATO (FIX UNIVERSAL)
+================================= */
+
+(function(){
+
+const _origBuildAdminPanel = buildAdminPanel;
+
+buildAdminPanel = async function() {
+  await _origBuildAdminPanel();
+
+  setTimeout(() => {
+
+    // 🔍 buscar cualquier contenedor admin
+    let container =
+      document.getElementById('tab-cycle') ||
+      document.getElementById('admin-panel') ||
+      document.querySelector('.admin') ||
+      document.body;
+
+    if (!container) return;
+
+    if (document.getElementById('champ-controls')) return;
+
+    const box = document.createElement('div');
+    box.id = 'champ-controls';
+    box.style.display = 'flex';
+    box.style.gap = '10px';
+    box.style.margin = '10px 0';
+
+    const btnNew = document.createElement('button');
+    btnNew.textContent = '➕ Nuevo campeonato';
+    btnNew.className = 'btn btn-green';
+    btnNew.onclick = createNewCycle;
+
+    const btnDel = document.createElement('button');
+    btnDel.textContent = '🗑 Eliminar campeonato';
+    btnDel.className = 'btn btn-red';
+    btnDel.onclick = deleteCurrentCycle;
+
+    box.appendChild(btnNew);
+    box.appendChild(btnDel);
+
+    container.prepend(box);
+
+  }, 500);
+};
+
+
+// =============================
+// ➕ CREAR
+// =============================
+async function createNewCycle() {
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  if (!cfg.questionBank) cfg.questionBank = {};
+
+  const oldCycle = cfg.cycleNum || 1;
+  const newCycle = oldCycle + 1;
+
+  if (cfg.questionBank[oldCycle]) {
+    cfg.questionBank[newCycle] =
+      JSON.parse(JSON.stringify(cfg.questionBank[oldCycle]));
+  } else {
+    cfg.questionBank[newCycle] = {};
+  }
+
+  cfg.cycleNum = newCycle;
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast(`🏆 Campeonato #${newCycle} creado`);
+  location.reload();
 }
 
-})();
-}
 
+// =============================
+// ❌ ELIMINAR
+// =============================
+async function deleteCurrentCycle() {
+  if (!confirm('¿Eliminar campeonato actual?')) return;
+
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  const cycle = cfg.cycleNum;
+
+  db.results = (db.results || []).filter(r => r.cycle !== cycle);
+
+  if (cfg.questionBank && cfg.questionBank[cycle]) {
+    delete cfg.questionBank[cycle];
+  }
+
+  cfg.cycleNum = Math.max(1, cycle - 1);
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast('🗑 Eliminado');
+  location.reload();
+}
 })();
 });
 </script>
