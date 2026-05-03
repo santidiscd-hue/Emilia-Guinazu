@@ -1947,58 +1947,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (getCurUser()) {
     showScreen('dash');
   }
-});
-</script>
-</body>
-</html>
-
-<!--
-════════════════════════════════════════════════════════════════
-  CORRECCIONES Y CAMBIOS — PreguntaQuiz
-════════════════════════════════════════════════════════════════
-
-PROBLEMA 1: Cuentas no accesibles desde otros dispositivos
-  FIX: db.users ahora vive en JSONBin (la nube), NO en localStorage.
-  doRegister() guarda el nuevo usuario en db.users con await dbWrite().
-  doLogin() lee db.users con await dbRead() y verifica contra la nube.
-  Los usuarios pueden loguearse desde cualquier dispositivo.
-
-PROBLEMA 2: Contraseña admin solo local
-  FIX: db.config.adminPw guardado en la nube.
-  adminLogin() llama await getAdminPw() que lee de la nube.
-  changeAdminPw() guarda la nueva contraseña en db.config.adminPw en la nube.
-  Aplica universalmente en todos los dispositivos al instante.
-
-PROBLEMA 3: Puntos no universales
-  FIX RAÍZ: getRounds(), getQuestions(), getPTS(), getCycleNum() son ahora
-  ASÍNCRONOS y siempre leen de dbRead() (nube), nunca de localStorage directo.
-  Todos sus llamadores (buildDash, startQuiz, checkAnswer, loadRanking, etc.)
-  actualizados con async/await.
-
-PROBLEMA 4: Preguntas iguales en todos los campeonatos
-  FIX: Nuevo sistema de "banco de preguntas por campeonato".
-  Estructura: db.config.questionBank = { [cycleNum]: { [roundId]: [...] } }
-  El editor de preguntas muestra tabs por campeonato (#1, #2, etc.).
-  Al cerrar un campeonato, se crea automáticamente el banco del nuevo ciclo
-  (copiando el anterior como base para editar).
-  Botón "+ Nuevo banco" para crear preguntas del próximo campeonato por adelantado.
-
-PROBLEMA 5: Nombre del app
-  Cambiado a "PreguntaQuiz" en header, title, defaults y textos.
-
-EXTRA — Migración automática:
-  migrateIfNeeded() detecta datos del formato viejo (localStorage) y los
-  mueve a la nube al primer arranque, sin perder datos existentes.
-
-EXTRA — Race condition en dbRead:
-  _dbPending evita múltiples fetch() simultáneos si dbRead() se llama
-  varias veces en rápida sucesión.
-
-EXTRA — deleteSelUsers ahora también usa la nube (antes solo localStorage).
-════════════════════════════════════════════════════════════════
--->
-
-/* ===============================
+  /* ===============================
    🔥 PARCHE MULTI-CAMPEONATO v1
    Pegar al FINAL del archivo
 ================================= */
@@ -2321,3 +2270,55 @@ async function createNewCycle() {
 }
 
 })();
+});
+</script>
+</body>
+</html>
+
+<!--
+════════════════════════════════════════════════════════════════
+  CORRECCIONES Y CAMBIOS — PreguntaQuiz
+════════════════════════════════════════════════════════════════
+
+PROBLEMA 1: Cuentas no accesibles desde otros dispositivos
+  FIX: db.users ahora vive en JSONBin (la nube), NO en localStorage.
+  doRegister() guarda el nuevo usuario en db.users con await dbWrite().
+  doLogin() lee db.users con await dbRead() y verifica contra la nube.
+  Los usuarios pueden loguearse desde cualquier dispositivo.
+
+PROBLEMA 2: Contraseña admin solo local
+  FIX: db.config.adminPw guardado en la nube.
+  adminLogin() llama await getAdminPw() que lee de la nube.
+  changeAdminPw() guarda la nueva contraseña en db.config.adminPw en la nube.
+  Aplica universalmente en todos los dispositivos al instante.
+
+PROBLEMA 3: Puntos no universales
+  FIX RAÍZ: getRounds(), getQuestions(), getPTS(), getCycleNum() son ahora
+  ASÍNCRONOS y siempre leen de dbRead() (nube), nunca de localStorage directo.
+  Todos sus llamadores (buildDash, startQuiz, checkAnswer, loadRanking, etc.)
+  actualizados con async/await.
+
+PROBLEMA 4: Preguntas iguales en todos los campeonatos
+  FIX: Nuevo sistema de "banco de preguntas por campeonato".
+  Estructura: db.config.questionBank = { [cycleNum]: { [roundId]: [...] } }
+  El editor de preguntas muestra tabs por campeonato (#1, #2, etc.).
+  Al cerrar un campeonato, se crea automáticamente el banco del nuevo ciclo
+  (copiando el anterior como base para editar).
+  Botón "+ Nuevo banco" para crear preguntas del próximo campeonato por adelantado.
+
+PROBLEMA 5: Nombre del app
+  Cambiado a "PreguntaQuiz" en header, title, defaults y textos.
+
+EXTRA — Migración automática:
+  migrateIfNeeded() detecta datos del formato viejo (localStorage) y los
+  mueve a la nube al primer arranque, sin perder datos existentes.
+
+EXTRA — Race condition en dbRead:
+  _dbPending evita múltiples fetch() simultáneos si dbRead() se llama
+  varias veces en rápida sucesión.
+
+EXTRA — deleteSelUsers ahora también usa la nube (antes solo localStorage).
+════════════════════════════════════════════════════════════════
+-->
+
+
