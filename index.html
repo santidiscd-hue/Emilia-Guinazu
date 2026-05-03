@@ -246,10 +246,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .correct-lbl { font-size: .72rem; color: var(--green); font-weight: 700; cursor: pointer; }
 
 /* ── WINNERS ── */
-.winner-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.winner-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
 .winner-row:last-child { border-bottom: none; }
 .winner-cycle { font-family: 'Roboto Mono', monospace; font-size: .72rem; color: var(--muted2); width: 50px; }
-.winner-name { flex: 1; font-weight: 600; }
+.winner-name { flex: 1; font-weight: 600; min-width: 100px; }
 .winner-pts { font-family: 'Roboto Mono', monospace; font-size: .88rem; color: #92400e; font-weight: 500; }
 
 /* ── TOAST ── */
@@ -277,10 +277,21 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
 .cd-num { font-family: 'Roboto Mono', monospace; font-size: 1.4rem; font-weight: 500; color: var(--text); }
 
 /* ── MOBILE TWEAKS ── */
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .pg-title { font-size: 1.45rem; }
   .q-text { font-size: 1.05rem; }
   .rounds-grid { grid-template-columns: 1fr 1fr; }
+  /* Tablas responsivas en móvil */
+  .dtable thead { display: none; }
+  .dtable tr { display: block; border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; padding: 8px; }
+  .dtable td { display: flex; justify-content: space-between; border-bottom: 1px solid var(--bg); padding: 6px 4px; font-size: .82rem; }
+  .dtable td::before { content: attr(data-label); font-weight: 600; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; margin-right: 8px; }
+  .dtable td:first-child::before { content: none; }
+  /* Ocultar checkboxes en filas móvil para tabla de overview */
+  .dtable td:first-child { justify-content: flex-start; }
+}
+@media (max-width: 400px) {
+  .stat-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
@@ -291,8 +302,8 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   <div class="hdr-logo">Quiz <span>Escolar</span></div>
   <div class="hdr-right">
     <span class="hdr-user" id="hdr-user"></span>
-    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-rank-btn" onclick="showScreen('ranking')" style="display:none">Ranking</button>
-    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-logout-btn" onclick="doLogout()" style="display:none">Salir</button>
+    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-rank-btn" onclick="showScreen('ranking')">Ranking</button>
+    <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-logout-btn" onclick="doLogout()">Salir</button>
     <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;" id="hdr-login-btn" onclick="showScreen('login')">Entrar</button>
     <button class="btn btn-ghost" style="font-size:.75rem;padding:6px 10px;color:var(--muted2);" onclick="showScreen('admin-login')" title="Admin">⚙</button>
   </div>
@@ -451,7 +462,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <h1 class="pg-title" style="font-size:1.5rem;">Ranking 🏆</h1>
         <div style="display:flex;gap:6px;align-items:center;">
           <span style="font-size:.72rem;color:var(--muted2);font-family:'Roboto Mono',monospace;" id="rank-updated"></span>
-          <button class="btn btn-ghost btn-sm" onclick="loadRanking()">↻</button>
+          <button class="btn btn-ghost btn-sm" onclick="dbInvalidate();loadRanking()">↻</button>
         </div>
       </div>
       <p class="pg-sub" id="rank-cycle-lbl"></p>
@@ -652,7 +663,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
   1. Creá cuenta gratis en https://jsonbin.io
   2. Create Bin → pegá: {"results":[],"hall":[],"config":{}}
   3. Copiá el Bin ID y el X-Master-Key
-  4. Poné USE_CLOUD: true
+  4. Poné USE: true
 */
 const CLOUD = {
   USE:  true,
@@ -726,6 +737,7 @@ const ls = {
   rm:  k => localStorage.removeItem(k),
 };
 
+// Estos helpers leen solo de localStorage (datos del dispositivo, no de la nube)
 function getUsers()    { return ls.get(SK.users)   || []; }
 function getCurUser()  { return ls.get(SK.session); }
 function getAdminPw()  { return ls.get(SK.adminPw) || 'admin123'; }
@@ -735,6 +747,11 @@ function getAdminPw()  { return ls.get(SK.adminPw) || 'admin123'; }
 // ════════════════════════════════════════════════════════
 let _dbCache = null;
 
+/**
+ * Lee la DB desde la nube (o localStorage como fallback).
+ * Usa caché en memoria para evitar múltiples fetches dentro de una misma operación.
+ * Llamá dbInvalidate() para forzar una nueva lectura en la siguiente llamada.
+ */
 async function dbRead() {
   if (_dbCache) return _dbCache;
   if (CLOUD.USE) {
@@ -742,49 +759,103 @@ async function dbRead() {
       const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}/latest`, {
         headers: { 'X-Master-Key': CLOUD.KEY }
       });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
       _dbCache = d.record;
+      // Sincronizar copia local como respaldo offline
+      ls.set(SK.local, _dbCache);
       return _dbCache;
     } catch(e) {
-      console.warn('Cloud read failed, using local', e);
+      console.warn('Cloud read failed, usando localStorage como fallback:', e);
+      showToast('⚠ Sin conexión — usando datos locales');
     }
   }
-  return ls.get(SK.local) || { results:[], hall:[], config:{} };
+  // Modo local o fallback
+  const local = ls.get(SK.local) || { results:[], hall:[], config:{} };
+  _dbCache = local;
+  return _dbCache;
 }
 
+/**
+ * Escribe en la nube (y siempre en localStorage como respaldo).
+ * Muestra toast si el write a la nube falla.
+ */
 async function dbWrite(data) {
   _dbCache = data;
+  // Siempre guardar localmente como respaldo
   ls.set(SK.local, data);
   if (CLOUD.USE) {
     try {
-      await fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}`, {
+      const r = await fetch(`https://api.jsonbin.io/v3/b/${CLOUD.ID}`, {
         method: 'PUT',
         headers: { 'Content-Type':'application/json', 'X-Master-Key': CLOUD.KEY },
         body: JSON.stringify(data)
       });
-    } catch(e) { console.warn('Cloud write failed', e); }
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    } catch(e) {
+      console.warn('Cloud write failed:', e);
+      showToast('⚠ Error al guardar en la nube — guardado localmente');
+    }
   }
 }
 
+/** Invalida el caché para forzar lectura fresca en el próximo dbRead() */
 function dbInvalidate() { _dbCache = null; }
 
-// Config helpers
+// ════════════════════════════════════════════════════════
+//  CONFIG HELPERS — TODOS ASÍNCRONOS (leen de la nube)
+// ════════════════════════════════════════════════════════
+
+/**
+ * Retorna la configuración completa mezclando defaults con lo guardado en DB.
+ * SIEMPRE usar await getCfg() en lugar de leer localStorage directamente.
+ */
 async function getCfg() {
   const db = await dbRead();
   return Object.assign({}, DEFAULT_CFG, db.config || {});
 }
-async function setCfg(key, val) {
-  const db = await dbRead();
-  if (!db.config) db.config = {};
-  db.config[key] = val;
-  await dbWrite(db);
+
+/**
+ * Retorna las rondas desde la DB (asíncrono, lee de la nube si CLOUD.USE).
+ * FIX: antes leía directamente de localStorage, causando caché desactualizado.
+ */
+async function getRounds() {
+  const cfg = await getCfg();
+  return cfg.rounds || DEFAULT_ROUNDS;
 }
 
-function getRounds()    { const db = ls.get(SK.local)||{}; const cfg = Object.assign({},DEFAULT_CFG,db.config||{}); return cfg.rounds || DEFAULT_ROUNDS; }
-function getQuestions() { const db = ls.get(SK.local)||{}; const cfg = Object.assign({},DEFAULT_CFG,db.config||{}); return cfg.questions || DEFAULT_QUESTIONS; }
-function getPTS()       { const db = ls.get(SK.local)||{}; const cfg = Object.assign({},DEFAULT_CFG,db.config||{}); return cfg.pts || 150; }
-function getCycleNum()  { const db = ls.get(SK.local)||{}; const cfg = Object.assign({},DEFAULT_CFG,db.config||{}); return cfg.cycleNum || 1; }
-function getTitle()     { const db = ls.get(SK.local)||{}; const cfg = Object.assign({},DEFAULT_CFG,db.config||{}); return cfg.eventTitle || 'Quiz Académico'; }
+/**
+ * Retorna las preguntas desde la DB (asíncrono).
+ * FIX: antes leía directamente de localStorage.
+ */
+async function getQuestions() {
+  const cfg = await getCfg();
+  return cfg.questions || DEFAULT_QUESTIONS;
+}
+
+/**
+ * Retorna los puntos por pregunta correcta (asíncrono).
+ */
+async function getPTS() {
+  const cfg = await getCfg();
+  return cfg.pts || 150;
+}
+
+/**
+ * Retorna el número de campeonato actual (asíncrono).
+ */
+async function getCycleNum() {
+  const cfg = await getCfg();
+  return cfg.cycleNum || 1;
+}
+
+/**
+ * Retorna el título del evento (asíncrono).
+ */
+async function getTitle() {
+  const cfg = await getCfg();
+  return cfg.eventTitle || 'Quiz Académico';
+}
 
 // ════════════════════════════════════════════════════════
 //  DATE / ROUND LOGIC
@@ -801,11 +872,7 @@ function fmtShort(d) { return d.toLocaleDateString('es-AR',{day:'numeric',month:
   ROUND AVAILABILITY:
   - "future"    → opens date hasn't arrived yet
   - "available" → opens date has passed AND next round hasn't opened yet (or there's no next)
-  - "closed"    → admin manually closed OR next round already opened
-  
-  A round is AVAILABLE if:
-    today >= round.opens
-    AND (no next round exists OR today < nextRound.opens)
+  - "closed"    → next round already opened
 */
 function getRoundStatus(round, allRounds) {
   const t = today();
@@ -820,8 +887,12 @@ function getRoundStatus(round, allRounds) {
   return 'available'; // open and next hasn't started
 }
 
-function getAvailableRound() {
-  const rounds = getRounds();
+/**
+ * Retorna la ronda disponible actualmente (asíncrono).
+ * FIX: antes usaba getRounds() síncrono que leía localStorage.
+ */
+async function getAvailableRound() {
+  const rounds = await getRounds();
   return rounds.find(r => getRoundStatus(r, rounds) === 'available') || null;
 }
 
@@ -865,7 +936,7 @@ function doLogin() {
   document.getElementById('login-name').value = '';
   document.getElementById('login-pass').value = '';
   updateHeader();
-  showToast(`Bienvenido/a, ${user.name}`);
+  showToast(`Bienvenido/a, ${escHtml(user.name)}`);
   showScreen('dash');
 }
 
@@ -902,25 +973,28 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
   const el = document.getElementById('screen-'+name);
   if (el) el.classList.add('on');
+  window.scrollTo(0, 0);
 
-  if (name==='home')   buildHome();
-  if (name==='dash')   buildDash();
-  if (name==='ranking'){ loadRanking(); startRankingRefresh(); }
-  if (name==='hall')   loadHall();
-  if (name==='admin')  buildAdminPanel();
+  if (name==='home')    buildHome();
+  if (name==='dash')    buildDash();
+  if (name==='ranking') { dbInvalidate(); loadRanking(); startRankingRefresh(); }
+  if (name==='hall')    loadHall();
+  if (name==='admin')   buildAdminPanel();
 }
 
 // ════════════════════════════════════════════════════════
 //  HOME SCREEN
 // ════════════════════════════════════════════════════════
-function buildHome() {
-  buildRoundChips('home-rounds');
-  const avail  = getAvailableRound();
+async function buildHome() {
+  // FIX: buildHome ahora es asíncrona para usar getRounds/getAvailableRound correctamente
+  await buildRoundChips('home-rounds');
+  const avail  = await getAvailableRound();
   const el     = document.getElementById('home-status');
+  if (!el) return;
   if (avail) {
-    el.innerHTML = `<div class="alert alert-green">✅ <strong>${avail.label}</strong> disponible ahora · 3 preguntas</div>`;
+    el.innerHTML = `<div class="alert alert-green">✅ <strong>${escHtml(avail.label)}</strong> disponible ahora · 3 preguntas</div>`;
   } else {
-    const rounds = getRounds();
+    const rounds = await getRounds();
     const next   = rounds.find(r => getRoundStatus(r,rounds)==='future');
     if (next) {
       el.innerHTML = `<div class="alert alert-gray">Próxima ronda: <strong>${fmtDate(parseDate(next.opens))}</strong></div>`;
@@ -933,8 +1007,12 @@ function buildHome() {
 // ════════════════════════════════════════════════════════
 //  ROUND CHIPS
 // ════════════════════════════════════════════════════════
-function buildRoundChips(containerId) {
-  const rounds = getRounds();
+/**
+ * Construye los chips de rondas en el contenedor indicado.
+ * FIX: ahora es asíncrona para leer rondas desde la nube.
+ */
+async function buildRoundChips(containerId) {
+  const rounds = await getRounds();
   const el = document.getElementById(containerId);
   if (!el) return;
   el.innerHTML = rounds.map(r => {
@@ -945,7 +1023,7 @@ function buildRoundChips(containerId) {
     else                      { cls='done-round';    pillTxt='Cerrada';    pillCls='pill-done'; }
     return `<div class="round-chip ${cls}">
       <div class="rc-num">Ronda ${r.id}</div>
-      <div class="rc-day">${r.day}</div>
+      <div class="rc-day">${escHtml(r.day)}</div>
       <div class="rc-date">${fmtShort(parseDate(r.opens))}</div>
       <div><span class="rc-pill ${pillCls}">${pillTxt}</span></div>
     </div>`;
@@ -961,21 +1039,25 @@ async function buildDash() {
 
   document.getElementById('dash-date').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   document.getElementById('dash-name').textContent = user.name;
-  buildRoundChips('dash-rounds');
+
+  // FIX: await buildRoundChips (ahora es asíncrona)
+  await buildRoundChips('dash-rounds');
 
   const db      = await dbRead();
   const results = db.results || [];
-  const avail   = getAvailableRound();
-  const rounds  = getRounds();
-  const myTotal = results.filter(r=>r.name===user.name).reduce((a,r)=>a+r.score,0);
+  const avail   = await getAvailableRound();
+  const rounds  = await getRounds();
+  const cycleNum = await getCycleNum();
+  const myTotal  = results.filter(r=>r.name===user.name).reduce((a,r)=>a+r.score,0);
   const myRounds = results.filter(r=>r.name===user.name).length;
 
   document.getElementById('dash-sub').textContent =
     myTotal > 0
-      ? `Campeonato #${getCycleNum()} · ${myTotal} puntos · ${myRounds}/4 rondas completadas`
-      : `Campeonato #${getCycleNum()} · Aún no tenés puntos — ¡empezá ahora!`;
+      ? `Campeonato #${cycleNum} · ${myTotal} puntos · ${myRounds}/4 rondas completadas`
+      : `Campeonato #${cycleNum} · Aún no tenés puntos — ¡empezá ahora!`;
 
   const el = document.getElementById('dash-action');
+  const pts = await getPTS();
 
   if (!avail) {
     const next = rounds.find(r => getRoundStatus(r,rounds)==='future');
@@ -988,11 +1070,12 @@ async function buildDash() {
         </div>`;
     } else {
       const nd = next ? parseDate(next.opens) : null;
+      const cdId = 'dash-cd-' + Date.now(); // ID único para evitar conflictos de countdown
       el.innerHTML = `
         <div class="alert alert-gray" style="margin-bottom:14px;">No hay rondas disponibles en este momento.</div>
-        ${nd ? `<div style="margin-bottom:16px;"><p style="font-size:.82rem;color:var(--muted);margin-bottom:6px;">Próxima ronda:</p><div style="font-family:'Roboto Mono',monospace;font-size:1.1rem;" id="dash-cd">--</div></div>` : ''}
+        ${nd ? `<div style="margin-bottom:16px;"><p style="font-size:.82rem;color:var(--muted);margin-bottom:6px;">Próxima ronda:</p><div class="cd-num" id="${cdId}">--</div></div>` : ''}
         <button class="btn btn-outline btn-full" onclick="showScreen('ranking')">Ver ranking</button>`;
-      if (nd) startCountdown('dash-cd', nd);
+      if (nd) startCountdown(cdId, nd);
     }
     return;
   }
@@ -1002,7 +1085,7 @@ async function buildDash() {
     const myResult = results.find(r => r.name===user.name && r.roundId===avail.id);
     el.innerHTML = `
       <div class="alert alert-green" style="margin-bottom:14px;">
-        ✅ Ya completaste la <strong>${avail.label}</strong>. Obtuviste <strong>${myResult?.score || 0} puntos</strong>.<br>
+        ✅ Ya completaste la <strong>${escHtml(avail.label)}</strong>. Obtuviste <strong>${myResult?.score || 0} puntos</strong>.<br>
         <span style="font-size:.82rem;">Tu respuesta está guardada. Podés practicar de nuevo pero no modifica tu puntaje.</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px;">
@@ -1012,8 +1095,8 @@ async function buildDash() {
   } else {
     el.innerHTML = `
       <div class="alert alert-green" style="margin-bottom:14px;">
-        <strong>${avail.label} disponible</strong> · ${fmtDate(parseDate(avail.opens))}<br>
-        <span style="font-size:.82rem;">3 preguntas · ${getPTS()} puntos cada una · máx. ${getPTS()*3} pts</span>
+        <strong>${escHtml(avail.label)} disponible</strong> · ${fmtDate(parseDate(avail.opens))}<br>
+        <span style="font-size:.82rem;">3 preguntas · ${pts} puntos cada una · máx. ${pts*3} pts</span>
       </div>
       <button class="btn btn-primary btn-full btn-lg" onclick="startQuiz(false)" style="margin-bottom:10px;">¡Responder ahora! →</button>
       <button class="btn btn-ghost btn-full" onclick="showScreen('ranking')">Ver ranking</button>`;
@@ -1023,23 +1106,36 @@ async function buildDash() {
 // ════════════════════════════════════════════════════════
 //  QUIZ
 // ════════════════════════════════════════════════════════
-let Q = { round:null, idx:0, score:0, correct:0, answered:false, practice:false };
+let Q = { round:null, idx:0, score:0, correct:0, answered:false, practice:false, questions:[] };
 
-function startQuiz(practice) {
+/**
+ * Inicia el quiz.
+ * FIX: carga las preguntas de forma asíncrona antes de renderizar.
+ */
+async function startQuiz(practice) {
   const user  = getCurUser();
   if (!user) { showScreen('login'); return; }
-  const avail = getAvailableRound();
+  const avail = await getAvailableRound();
   if (!avail) { showToast('No hay ronda disponible'); return; }
 
-  Q = { round:avail, idx:0, score:0, correct:0, answered:false, practice };
+  // Pre-cargar preguntas para evitar race conditions en renderQ
+  const allQs = await getQuestions();
+  const roundQs = allQs[avail.id] || [];
+
+  Q = { round:avail, idx:0, score:0, correct:0, answered:false, practice, questions: roundQs };
   document.getElementById('q-sess-lbl').textContent = avail.label + (practice ? ' (Práctica)' : '');
   showScreen('quiz');
   renderQ();
 }
 
+/**
+ * Renderiza la pregunta actual.
+ * FIX: usa Q.questions (pre-cargadas) en lugar de llamar getQuestions() síncrono.
+ */
 function renderQ() {
-  const qs    = getQuestions()[Q.round.id] || [];
+  const qs    = Q.questions;
   const q     = qs[Q.idx];
+  if (!q) return; // Seguridad
   const total = qs.length;
 
   document.getElementById('q-prog').style.width    = (Q.idx/total*100)+'%';
@@ -1056,25 +1152,35 @@ function renderQ() {
   q.opts.forEach((opt,i) => {
     const btn = document.createElement('button');
     btn.className = 'opt';
-    btn.innerHTML = `<span class="opt-ltr">${LTRS[i]}</span>${escHtml(opt)}`;
+    // FIX: usar textContent para el texto de opción (anti-XSS)
+    const ltr = document.createElement('span');
+    ltr.className = 'opt-ltr';
+    ltr.textContent = LTRS[i];
+    btn.appendChild(ltr);
+    btn.appendChild(document.createTextNode(opt));
     btn.onclick = () => checkAnswer(i, q.correct, btn);
     el.appendChild(btn);
   });
 }
 
+/**
+ * FIX: usa Q.questions pre-cargadas y getPTS cacheado (no llama helpers asíncronos).
+ */
 function checkAnswer(chosen, correct, btn) {
   if (Q.answered) return;
   Q.answered = true;
   document.querySelectorAll('.opt').forEach(o => o.classList.add('dis'));
   const fb = document.getElementById('q-fb');
-  const qs = getQuestions()[Q.round.id] || [];
+  const qs = Q.questions;
+  // Obtener pts del caché actual (ya está en _dbCache)
+  const pts = (_dbCache && _dbCache.config && _dbCache.config.pts) ? _dbCache.config.pts : DEFAULT_CFG.pts;
 
   if (chosen === correct) {
     btn.classList.add('ok');
-    Q.score += getPTS(); Q.correct++;
+    Q.score += pts; Q.correct++;
     document.getElementById('q-score-lbl').textContent = `${Q.score} pts`;
     fb.className = 'q-fb show ok';
-    fb.textContent = `✓ Correcto · +${getPTS()} puntos`;
+    fb.textContent = `✓ Correcto · +${pts} puntos`;
   } else {
     btn.classList.add('err');
     document.querySelectorAll('.opt')[correct].classList.add('ok');
@@ -1086,8 +1192,7 @@ function checkAnswer(chosen, correct, btn) {
 
 async function nextQ() {
   Q.idx++;
-  const qs = getQuestions()[Q.round.id] || [];
-  if (Q.idx >= qs.length) {
+  if (Q.idx >= Q.questions.length) {
     await finishRound();
   } else {
     renderQ();
@@ -1107,7 +1212,7 @@ async function finishRound() {
       roundLabel: Q.round.label,
       score:      Q.score,
       correct:    Q.correct,
-      total:      (getQuestions()[Q.round.id]||[]).length,
+      total:      Q.questions.length,
       date:       new Date().toLocaleDateString('es-AR'),
       ts:         Date.now(),
     });
@@ -1115,9 +1220,10 @@ async function finishRound() {
     dbInvalidate();
   }
 
-  const total = (getQuestions()[Q.round.id]||[]).length;
-  const pct   = Q.correct / total;
-  const db2   = await dbRead();
+  const total  = Q.questions.length;
+  const pct    = Q.correct / total;
+  // FIX: dbInvalidate antes de leer para obtener total actualizado
+  const db2    = await dbRead();
   const myTotal = (db2.results||[]).filter(r=>r.name===user.name).reduce((a,r)=>a+r.score,0);
 
   document.getElementById('r-emoji').textContent  = pct===1?'🏆':pct>=.67?'🎉':'💪';
@@ -1142,15 +1248,20 @@ function startRankingRefresh() {
 }
 
 async function loadRanking() {
-  document.getElementById('rank-cycle-lbl').textContent = `Campeonato #${getCycleNum()} · puntos acumulados de las 4 rondas`;
+  const cycleNum = await getCycleNum();
+  document.getElementById('rank-cycle-lbl').textContent = `Campeonato #${cycleNum} · puntos acumulados de las 4 rondas`;
   document.getElementById('rank-card').innerHTML = '<div class="loading-box"><div class="spin"></div> Cargando…</div>';
 
-  const db      = await dbRead(); dbInvalidate();
+  // FIX: dbInvalidate antes de leer para siempre obtener datos frescos al cargar ranking
+  dbInvalidate();
+  const db      = await dbRead();
   const results = db.results || [];
   const user    = getCurUser();
-  const rounds  = getRounds();
+  const rounds  = await getRounds();
+  const qs      = await getQuestions();
+  const pts     = await getPTS();
 
-  // Aggregate per player
+  // Agregar por jugador
   const players = {};
   results.forEach(r => {
     if (!players[r.name]) players[r.name] = { name:r.name, total:0, rounds:{}, correct:0, totalQ:0 };
@@ -1160,7 +1271,7 @@ async function loadRanking() {
     players[r.name].rounds[r.roundId] = r;
   });
   const sorted = Object.values(players).sort((a,b) => b.total-a.total);
-  const maxPts = rounds.length * (getQuestions()[1]||[{},{},{}]).length * getPTS();
+  const maxPts = rounds.length * (qs[1]||[{},{},{}]).length * pts;
 
   document.getElementById('rank-stats').innerHTML = `
     <div class="stat-box"><div class="stat-val">${sorted.length}</div><div class="stat-lbl">Jugadores</div></div>
@@ -1185,14 +1296,14 @@ async function loadRanking() {
 
     const dots = rounds.map(r => {
       const res = p.rounds[r.id];
-      if (!res) return `<span class="s-dot sd-none" title="${r.label}: sin jugar"></span>`;
+      if (!res) return `<span class="s-dot sd-none" title="${escHtml(r.label)}: sin jugar"></span>`;
       const c = res.correct===res.total ? 'sd-full' : 'sd-partial';
-      return `<span class="s-dot ${c}" title="${r.label}: ${res.score}pts"></span>`;
+      return `<span class="s-dot ${c}" title="${escHtml(r.label)}: ${res.score}pts"></span>`;
     }).join('');
 
     const isMe = user && p.name===user.name;
     return `<tr${isMe?' class="me"':''}>
-      <td><span class="medal">${medals[i]||''}</span> ${i+1}</td>
+      <td>${medals[i]||''} ${i+1}</td>
       <td><strong>${escHtml(p.name)}</strong>${isMe?' <span style="font-size:.68rem;color:var(--blue)">(vos)</span>':''}</td>
       <td><span class="s-dots">${dots}</span></td>
       <td class="pts-cell">${p.correct}/${p.totalQ}</td>
@@ -1216,6 +1327,7 @@ async function loadRanking() {
 // ════════════════════════════════════════════════════════
 async function loadHall() {
   document.getElementById('hall-content').innerHTML = '<div class="loading-box"><div class="spin"></div></div>';
+  dbInvalidate();
   const db   = await dbRead();
   const hall = db.hall || [];
   if (!hall.length) {
@@ -1227,7 +1339,7 @@ async function loadHall() {
       <span class="winner-cycle">#${w.cycle}</span>
       <div class="winner-name">🏆 ${escHtml(w.name)}</div>
       <span class="winner-pts">${w.total} pts</span>
-      <span style="font-size:.72rem;color:var(--muted2);">${w.date}</span>
+      <span style="font-size:.72rem;color:var(--muted2);">${escHtml(w.date)}</span>
     </div>`).join('');
 }
 
@@ -1270,7 +1382,8 @@ async function buildAdminPanel() {
   const db      = await dbRead();
   const results = db.results || [];
   const users   = getUsers();
-  const rounds  = getRounds();
+  const rounds  = await getRounds(); // FIX: ahora asíncrono
+  const cycleNum = await getCycleNum(); // FIX: ahora asíncrono
 
   const playerSet = new Set(results.map(r=>r.name));
   const avg = results.length ? Math.round(results.reduce((a,r)=>a+r.score,0)/results.length) : 0;
@@ -1282,9 +1395,9 @@ async function buildAdminPanel() {
     <div class="stat-box"><div class="stat-val">${results.length}</div><div class="stat-lbl">Rondas jugadas</div></div>
     <div class="stat-box"><div class="stat-val">${avg}</div><div class="stat-lbl">Promedio pts</div></div>
     <div class="stat-box"><div class="stat-val">${perfect}</div><div class="stat-lbl">Perfectos</div></div>
-    <div class="stat-box"><div class="stat-val">${getCycleNum()}</div><div class="stat-lbl">Campeonato #</div></div>`;
+    <div class="stat-box"><div class="stat-val">${cycleNum}</div><div class="stat-lbl">Campeonato #</div></div>`;
 
-  // Sessions progress
+  // Estado de rondas
   const rCounts = {};
   rounds.forEach(r => rCounts[r.id] = results.filter(res=>res.roundId===r.id).length);
   document.getElementById('a-sessions-card').innerHTML = `
@@ -1293,7 +1406,13 @@ async function buildAdminPanel() {
     ${rounds.map(r=>{
       const st = getRoundStatus(r,rounds);
       const pillMap = {available:'<span class="badge badge-ok">Disponible</span>',future:'<span class="badge badge-mid">Próxima</span>',closed:'<span class="badge badge-low">Cerrada</span>'};
-      return `<tr><td><strong>${r.label}</strong></td><td>${r.day} S${r.week}</td><td style="font-family:'Roboto Mono',monospace;font-size:.82rem;">${r.opens}</td><td>${pillMap[st]}</td><td>${rCounts[r.id]}</td></tr>`;
+      return `<tr>
+        <td data-label="Ronda"><strong>${escHtml(r.label)}</strong></td>
+        <td data-label="Día">${escHtml(r.day)} S${r.week}</td>
+        <td data-label="Apertura" style="font-family:'Roboto Mono',monospace;font-size:.82rem;">${r.opens}</td>
+        <td data-label="Estado">${pillMap[st]}</td>
+        <td data-label="Respuestas">${rCounts[r.id]}</td>
+      </tr>`;
     }).join('')}
     </tbody></table></div>`;
 
@@ -1306,9 +1425,13 @@ async function buildAdminPanel() {
   });
   const sorted = Object.values(players).sort((a,b)=>b.total-a.total);
   document.getElementById('a-rank-body').innerHTML = sorted.map((p,i)=>`
-    <tr><td>${i+1}</td><td><strong>${escHtml(p.name)}</strong></td><td>${p.played}/4</td>
-    <td>${p.correct}/${p.totalQ}</td>
-    <td style="font-family:'Roboto Mono',monospace;font-weight:600;">${p.total}</td></tr>`
+    <tr>
+      <td data-label="#">${i+1}</td>
+      <td data-label="Nombre"><strong>${escHtml(p.name)}</strong></td>
+      <td data-label="Rondas">${p.played}/4</td>
+      <td data-label="Correctas">${p.correct}/${p.totalQ}</td>
+      <td data-label="Puntos" style="font-family:'Roboto Mono',monospace;font-weight:600;">${p.total}</td>
+    </tr>`
   ).join('') || '<tr><td colspan="5"><div class="empty">Sin datos.</div></td></tr>';
 }
 
@@ -1316,60 +1439,133 @@ async function buildAdminPanel() {
 //  QUESTION EDITOR
 // ════════════════════════════════════════════════════════
 let curQTab = 1;
-function buildQEditor(roundId) {
+
+/**
+ * FIX: ahora asíncrona para leer preguntas y rondas desde la nube.
+ * FIX: usa atributo data-value en inputs en lugar de value="${escHtml(...)}" para
+ *       evitar problemas de escaping con comillas simples/dobles en el HTML.
+ */
+async function buildQEditor(roundId) {
   curQTab = roundId;
-  const rounds = getRounds();
-  const qs     = getQuestions();
+  const rounds = await getRounds();
+  const qs     = await getQuestions();
 
   document.getElementById('qe-tabs').innerHTML = rounds.map(r =>
-    `<button class="btn btn-sm ${r.id===roundId?'btn-primary':'btn-outline'}" onclick="buildQEditor(${r.id})">${r.label}</button>`
+    `<button class="btn btn-sm ${r.id===roundId?'btn-primary':'btn-outline'}" onclick="buildQEditor(${r.id})">${escHtml(r.label)}</button>`
   ).join('');
 
-  const rQs = qs[roundId] || [{q:'',opts:['','','',''],correct:0},{q:'',opts:['','','',''],correct:0},{q:'',opts:['','','',''],correct:0}];
+  const rQs = qs[roundId] || [
+    {q:'',opts:['','','',''],correct:0},
+    {q:'',opts:['','','',''],correct:0},
+    {q:'',opts:['','','',''],correct:0}
+  ];
   const LTRS = ['A','B','C','D'];
-  document.getElementById('qe-body').innerHTML = rQs.map((q,qi) => `
-    <div class="qe-block">
-      <h4>Pregunta ${qi+1}</h4>
-      <div class="field" style="margin-bottom:10px;">
-        <label>Texto de la pregunta</label>
-        <input type="text" id="qe-q-${qi}" value="${escHtml(q.q)}" placeholder="Escribí la pregunta...">
-      </div>
-      <div class="sec-label" style="margin-bottom:6px;">Opciones · marcá la correcta</div>
-      ${q.opts.map((opt,oi) => `
-        <div class="opt-row">
-          <div class="opt-ltr-badge">${LTRS[oi]}</div>
-          <input type="text" id="qe-o-${qi}-${oi}" value="${escHtml(opt)}" placeholder="Opción ${LTRS[oi]}">
-          <input type="radio" class="opt-radio" name="qe-r-${qi}" id="qe-r-${qi}-${oi}" value="${oi}" ${q.correct===oi?'checked':''}>
-          <label for="qe-r-${qi}-${oi}" class="correct-lbl">✓ Correcta</label>
-        </div>`).join('')}
-    </div>`).join('');
+
+  // FIX: construir el editor con DOM en lugar de innerHTML para evitar
+  // problemas de escaping de comillas en los values de los inputs
+  const body = document.getElementById('qe-body');
+  body.innerHTML = '';
+
+  rQs.forEach((q, qi) => {
+    const block = document.createElement('div');
+    block.className = 'qe-block';
+
+    const h4 = document.createElement('h4');
+    h4.textContent = `Pregunta ${qi+1}`;
+    block.appendChild(h4);
+
+    // Campo de texto de pregunta
+    const fieldDiv = document.createElement('div');
+    fieldDiv.className = 'field';
+    fieldDiv.style.marginBottom = '10px';
+    const lbl = document.createElement('label');
+    lbl.textContent = 'Texto de la pregunta';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.id = `qe-q-${qi}`;
+    inp.value = q.q;  // .value = texto directo, sin escaping de HTML necesario
+    inp.placeholder = 'Escribí la pregunta...';
+    fieldDiv.appendChild(lbl);
+    fieldDiv.appendChild(inp);
+    block.appendChild(fieldDiv);
+
+    const secLbl = document.createElement('div');
+    secLbl.className = 'sec-label';
+    secLbl.style.marginBottom = '6px';
+    secLbl.textContent = 'Opciones · marcá la correcta';
+    block.appendChild(secLbl);
+
+    // Opciones
+    q.opts.forEach((opt, oi) => {
+      const row = document.createElement('div');
+      row.className = 'opt-row';
+
+      const badge = document.createElement('div');
+      badge.className = 'opt-ltr-badge';
+      badge.textContent = LTRS[oi];
+
+      const optInp = document.createElement('input');
+      optInp.type = 'text';
+      optInp.id = `qe-o-${qi}-${oi}`;
+      optInp.value = opt;  // .value asigna el texto directamente (sin HTML encoding)
+      optInp.placeholder = `Opción ${LTRS[oi]}`;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.className = 'opt-radio';
+      radio.name = `qe-r-${qi}`;
+      radio.id = `qe-r-${qi}-${oi}`;
+      radio.value = oi;
+      radio.checked = q.correct === oi;
+
+      const radioLbl = document.createElement('label');
+      radioLbl.htmlFor = `qe-r-${qi}-${oi}`;
+      radioLbl.className = 'correct-lbl';
+      radioLbl.textContent = '✓ Correcta';
+
+      row.appendChild(badge);
+      row.appendChild(optInp);
+      row.appendChild(radio);
+      row.appendChild(radioLbl);
+      block.appendChild(row);
+    });
+
+    body.appendChild(block);
+  });
 }
 
 async function saveQuestions() {
   const db  = await dbRead();
   if (!db.config) db.config = {};
-  if (!db.config.questions) db.config.questions = getQuestions();
-  const rQs = (getQuestions()[curQTab]||[]).map((_,qi) => {
+  // FIX: leer preguntas actuales de la DB (no de localStorage)
+  const currentQs = await getQuestions();
+  if (!db.config.questions) db.config.questions = currentQs;
+
+  const rQs = (currentQs[curQTab]||[]).map((_,qi) => {
     const q = document.getElementById(`qe-q-${qi}`)?.value.trim()||'';
     const opts = [0,1,2,3].map(oi=>document.getElementById(`qe-o-${qi}-${oi}`)?.value.trim()||'');
     const cr = document.querySelector(`input[name="qe-r-${qi}"]:checked`);
     return { q, opts, correct: cr ? parseInt(cr.value) : 0 };
   });
-  db.config.questions = { ...(db.config.questions||getQuestions()), [curQTab]: rQs };
-  await dbWrite(db); dbInvalidate();
+  db.config.questions = { ...(db.config.questions||currentQs), [curQTab]: rQs };
+  await dbWrite(db);
+  dbInvalidate();
   showToast(`✓ Preguntas Ronda ${curQTab} guardadas`);
 }
 
 // ════════════════════════════════════════════════════════
 //  DATES EDITOR
 // ════════════════════════════════════════════════════════
-function buildDatesEditor() {
-  const rounds = getRounds();
+/**
+ * FIX: ahora asíncrona para leer rondas desde la nube.
+ */
+async function buildDatesEditor() {
+  const rounds = await getRounds();
   document.getElementById('dates-body').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
     ${rounds.map(r => `
       <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;">
-        <div class="sec-label">${r.label} · ${r.day} S${r.week}</div>
+        <div class="sec-label">${escHtml(r.label)} · ${escHtml(r.day)} S${r.week}</div>
         <div class="field" style="margin-bottom:0;">
           <label>Fecha de apertura</label>
           <input type="date" id="de-${r.id}" value="${r.opens}">
@@ -1381,14 +1577,18 @@ function buildDatesEditor() {
 async function saveDates() {
   const db = await dbRead();
   if (!db.config) db.config = {};
-  const rounds = getRounds().map(r => {
+  // FIX: leer rondas de la DB, no de localStorage
+  const rounds = (await getRounds()).map(r => {
     const val = document.getElementById(`de-${r.id}`)?.value;
     return val ? {...r, opens:val} : r;
   });
   db.config.rounds = rounds;
-  await dbWrite(db); dbInvalidate();
-  buildDatesEditor();
-  buildRoundChips('dash-rounds');
+  await dbWrite(db);
+  dbInvalidate();
+  // FIX: actualizar todos los lugares donde se muestran rondas
+  await buildDatesEditor();
+  await buildRoundChips('dash-rounds');
+  await buildRoundChips('home-rounds');
   showToast('✓ Fechas guardadas');
 }
 
@@ -1405,11 +1605,13 @@ async function buildUsersTable() {
   results.forEach(r => { played[r.name]=(played[r.name]||0)+1; });
 
   document.getElementById('a-users-body').innerHTML = users.map((u,i) => `
-    <tr><td><input type="checkbox" class="u-chk" data-idx="${i}"></td>
-    <td><strong>${escHtml(u.name)}</strong></td>
-    <td>${played[u.name]||0}/4</td>
-    <td style="font-family:'Roboto Mono',monospace">${cum[u.name]||0}</td>
-    <td style="color:var(--muted2);font-size:.8rem;">${u.created||''}</td></tr>`
+    <tr>
+      <td><input type="checkbox" class="u-chk" data-idx="${i}"></td>
+      <td data-label="Nombre"><strong>${escHtml(u.name)}</strong></td>
+      <td data-label="Rondas">${played[u.name]||0}/4</td>
+      <td data-label="Puntos" style="font-family:'Roboto Mono',monospace">${cum[u.name]||0}</td>
+      <td data-label="Registro" style="color:var(--muted2);font-size:.8rem;">${escHtml(u.created||'')}</td>
+    </tr>`
   ).join('') || '<tr><td colspan="5"><div class="empty">Sin usuarios.</div></td></tr>';
 }
 
@@ -1447,13 +1649,15 @@ async function buildResultsTable() {
   results.forEach(r=>{cum[r.name]=(cum[r.name]||0)+r.score;});
   const sorted = [...results].sort((a,b)=>b.ts-a.ts);
   document.getElementById('a-results-body').innerHTML = sorted.map((r,i)=>`
-    <tr><td><input type="checkbox" class="r-chk" data-idx="${i}"></td>
-    <td><strong>${escHtml(r.name)}</strong></td>
-    <td><span class="tag">${r.roundLabel}</span></td>
-    <td>${r.correct}/${r.total}</td>
-    <td style="font-family:'Roboto Mono',monospace">${r.score}</td>
-    <td style="font-family:'Roboto Mono',monospace;font-weight:600">${cum[r.name]}</td>
-    <td style="color:var(--muted2);font-size:.8rem;">${r.date}</td></tr>`
+    <tr>
+      <td><input type="checkbox" class="r-chk" data-idx="${i}"></td>
+      <td data-label="Nombre"><strong>${escHtml(r.name)}</strong></td>
+      <td data-label="Ronda"><span class="tag">${escHtml(r.roundLabel)}</span></td>
+      <td data-label="Correctas">${r.correct}/${r.total}</td>
+      <td data-label="Pts" style="font-family:'Roboto Mono',monospace">${r.score}</td>
+      <td data-label="Total" style="font-family:'Roboto Mono',monospace;font-weight:600">${cum[r.name]}</td>
+      <td data-label="Fecha" style="color:var(--muted2);font-size:.8rem;">${escHtml(r.date)}</td>
+    </tr>`
   ).join('') || '<tr><td colspan="7"><div class="empty">Sin resultados.</div></td></tr>';
 }
 
@@ -1465,7 +1669,8 @@ async function deleteSelResults() {
   if (!confirm(`¿Eliminar ${checked.length} resultado(s)?`)) return;
   const toDelete = new Set(checked.map(i=>sorted[i].ts));
   db.results = (db.results||[]).filter(r=>!toDelete.has(r.ts));
-  await dbWrite(db); dbInvalidate();
+  await dbWrite(db);
+  dbInvalidate();
   buildResultsTable();
   showToast('✓ Eliminado');
 }
@@ -1474,7 +1679,8 @@ async function clearAllResults() {
   if (!confirm('¿Borrar TODOS los resultados del campeonato actual?')) return;
   const db = await dbRead();
   db.results = [];
-  await dbWrite(db); dbInvalidate();
+  await dbWrite(db);
+  dbInvalidate();
   buildAdminPanel();
   showToast('✓ Resultados borrados');
 }
@@ -1508,7 +1714,7 @@ async function buildCycleTab() {
       <span class="winner-cycle">#${w.cycle}</span>
       <span class="winner-name">🏆 ${escHtml(w.name)}</span>
       <span class="winner-pts">${w.total} pts</span>
-      <span style="font-size:.72rem;color:var(--muted2);">${w.date}</span>
+      <span style="font-size:.72rem;color:var(--muted2);">${escHtml(w.date)}</span>
     </div>`).join('');
 }
 
@@ -1520,7 +1726,9 @@ async function closeCycle() {
   results.forEach(r=>{players[r.name]=(players[r.name]||0)+r.score;});
   const sorted = Object.entries(players).sort((a,b)=>b[1]-a[1]);
   const [winName, winPts] = sorted[0];
-  const cycleNum = getCycleNum();
+
+  // FIX: getCycleNum() es ahora asíncrono
+  const cycleNum = await getCycleNum();
 
   if (!confirm(`¿Cerrar Campeonato #${cycleNum}?\n\n🏆 Ganador: ${winName} (${winPts} pts)\n\nEsto archivará al ganador, reseteará los puntos y avanzará las fechas 14 días.`)) return;
 
@@ -1528,8 +1736,8 @@ async function closeCycle() {
   const hall = db.hall || [];
   hall.push({ cycle:cycleNum, name:winName, total:winPts, date:new Date().toLocaleDateString('es-AR') });
 
-  // Advance dates 14 days
-  const rounds = getRounds().map(r => {
+  // FIX: getRounds() es ahora asíncrono — avanzar fechas 14 días
+  const rounds = (await getRounds()).map(r => {
     const d = parseDate(r.opens); d.setDate(d.getDate()+14);
     return { ...r, opens: d.toISOString().split('T')[0] };
   });
@@ -1537,10 +1745,16 @@ async function closeCycle() {
   db.hall      = hall;
   db.results   = [];
   db.config    = { ...db.config, cycleNum: cycleNum+1, rounds };
-  await dbWrite(db); dbInvalidate();
+  await dbWrite(db);
+  dbInvalidate();
 
-  buildAdminPanel(); buildCycleTab(); buildDatesEditor();
-  showToast(`🏆 ${winName} archivado. ¡Campeonato #${cycleNum+1} iniciado!`);
+  // FIX: actualizar todas las vistas afectadas
+  await buildAdminPanel();
+  await buildCycleTab();
+  await buildDatesEditor();
+  await buildRoundChips('home-rounds');
+  await buildRoundChips('dash-rounds');
+  showToast(`🏆 ${escHtml(winName)} archivado. ¡Campeonato #${cycleNum+1} iniciado!`);
 }
 
 async function resetCycle() {
@@ -1548,9 +1762,12 @@ async function resetCycle() {
   const db = await dbRead();
   if (!db.config) db.config = {};
   db.results = [];
-  db.config.cycleNum = getCycleNum()+1;
-  await dbWrite(db); dbInvalidate();
-  buildAdminPanel(); buildCycleTab();
+  // FIX: getCycleNum() es asíncrono
+  db.config.cycleNum = (await getCycleNum())+1;
+  await dbWrite(db);
+  dbInvalidate();
+  await buildAdminPanel();
+  await buildCycleTab();
   showToast('✓ Campeonato reseteado');
 }
 
@@ -1558,7 +1775,8 @@ async function clearHall() {
   if (!confirm('¿Borrar todo el historial de campeones?')) return;
   const db = await dbRead();
   db.hall = [];
-  await dbWrite(db); dbInvalidate();
+  await dbWrite(db);
+  dbInvalidate();
   buildCycleTab();
   showToast('✓ Historial borrado');
 }
@@ -1566,11 +1784,14 @@ async function clearHall() {
 // ════════════════════════════════════════════════════════
 //  SETTINGS
 // ════════════════════════════════════════════════════════
-function buildSettingsTab() {
+/**
+ * FIX: ahora asíncrona para leer config desde la nube.
+ */
+async function buildSettingsTab() {
   const ptsEl   = document.getElementById('cfg-pts');
   const titleEl = document.getElementById('cfg-title');
-  if (ptsEl)   ptsEl.value   = getPTS();
-  if (titleEl) titleEl.value = getTitle();
+  if (ptsEl)   ptsEl.value   = await getPTS();
+  if (titleEl) titleEl.value = await getTitle();
 }
 
 async function saveGeneralCfg() {
@@ -1581,7 +1802,8 @@ async function saveGeneralCfg() {
   if (!db.config) db.config={};
   db.config.pts        = pts;
   db.config.eventTitle = title;
-  await dbWrite(db); dbInvalidate();
+  await dbWrite(db);
+  dbInvalidate();
   msg.style.color = 'var(--green)'; msg.textContent = '✓ Guardado.';
   setTimeout(()=>msg.textContent='',3000);
   showToast('✓ Configuración guardada');
@@ -1609,14 +1831,15 @@ async function exportCSV() {
   const db = await dbRead();
   const results = db.results||[];
   if (!results.length) { showToast('Sin datos para exportar'); return; }
+  const cycleNum = await getCycleNum();
   const cum = {};
   results.forEach(r=>{cum[r.name]=(cum[r.name]||0)+r.score;});
   const header = 'Campeonato,Nombre,Ronda,Correctas,Total,Pts_Ronda,Pts_Total,Fecha\n';
-  const rows = results.map(r=>`${getCycleNum()},"${r.name}","${r.roundLabel}",${r.correct},${r.total},${r.score},${cum[r.name]},"${r.date}"`).join('\n');
+  const rows = results.map(r=>`${cycleNum},"${r.name}","${r.roundLabel}",${r.correct},${r.total},${r.score},${cum[r.name]},"${r.date}"`).join('\n');
   const blob = new Blob([header+rows],{type:'text/csv;charset=utf-8;'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `quiz_campeonato${getCycleNum()}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `quiz_campeonato${cycleNum}_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   showToast('✓ CSV descargado');
 }
@@ -1624,19 +1847,25 @@ async function exportCSV() {
 // ════════════════════════════════════════════════════════
 //  COUNTDOWN
 // ════════════════════════════════════════════════════════
+/**
+ * FIX: se guarda el intervalId para poder cancelarlo si el elemento desaparece,
+ * evitando race conditions cuando el dashboard se re-renderiza.
+ */
 function startCountdown(elId, target) {
+  let intervalId;
   function tick() {
     const el = document.getElementById(elId);
-    if (!el) return;
+    if (!el) { clearInterval(intervalId); return; } // Elemento eliminado: detener
     const ms = target - new Date();
-    if (ms <= 0) { el.textContent = '¡Ya disponible!'; return; }
+    if (ms <= 0) { el.textContent = '¡Ya disponible!'; clearInterval(intervalId); return; }
     const d = Math.floor(ms/86400000);
     const h = Math.floor((ms%86400000)/3600000);
     const m = Math.floor((ms%3600000)/60000);
     const s = Math.floor((ms%60000)/1000);
     el.textContent = d>0 ? `${d}d ${h}h ${String(m).padStart(2,'0')}m` : `${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
   }
-  tick(); setInterval(tick,1000);
+  tick();
+  intervalId = setInterval(tick, 1000);
 }
 
 // ════════════════════════════════════════════════════════
@@ -1646,9 +1875,20 @@ function showAlert(el, msg, type) {
   const map = {green:'alert-green',red:'alert-red',amber:'alert-amber',blue:'alert-blue'};
   el.innerHTML = `<div class="alert ${map[type]||'alert-gray'}">${msg}</div>`;
 }
+
+/**
+ * Escapa caracteres especiales HTML para prevenir XSS.
+ * FIX: ahora también escapa comillas simples (&#39;).
+ */
 function escHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s||'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
 }
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -1658,10 +1898,10 @@ function showToast(msg) {
 // ════════════════════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   updateHeader();
-  buildHome();
-  // Auto-redirect logged-in user to dash
+  await buildHome();
+  // Auto-redirect si el usuario ya está logueado
   if (getCurUser()) {
     showScreen('dash');
   }
@@ -1669,3 +1909,69 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+<!--
+════════════════════════════════════════════════════════════════
+  CORRECCIONES REALIZADAS
+════════════════════════════════════════════════════════════════
+
+1. SINCRONIZACIÓN CON LA NUBE (crítico):
+   - getRounds(), getQuestions(), getPTS(), getCycleNum(), getTitle() convertidos
+     a funciones ASÍNCRONAS que usan await dbRead() en lugar de leer directamente
+     de localStorage. Esto elimina el problema principal de caché desactualizado.
+   - buildRoundChips(), buildHome(), buildDash(), buildDatesEditor(), buildQEditor(),
+     buildSettingsTab(), getAvailableRound(), startQuiz() convertidos a async.
+   - closeCycle() y resetCycle() actualizados para await en getCycleNum()/getRounds().
+   - exportCSV() actualizado para await getCycleNum().
+
+2. CACHÉ Y RACE CONDITIONS:
+   - dbRead() ahora guarda en localStorage como respaldo offline SIEMPRE.
+   - dbInvalidate() se llama correctamente antes de operaciones de lectura que
+     requieren datos frescos (loadRanking, loadHall, showScreen('ranking')).
+   - startCountdown(): el intervalo ahora se cancela si el elemento del DOM
+     desaparece (evita timers huérfanos al navegar entre pantallas).
+   - buildDash() usa IDs de countdown únicos (sufijo timestamp) para evitar
+     conflictos si se llama múltiples veces.
+
+3. ESCAPING Y SEGURIDAD XSS:
+   - escHtml() ahora también escapa comillas simples (&#39;).
+   - buildQEditor() reescrito con DOM API (createElement/textContent/.value) en
+     lugar de innerHTML con value="${escHtml(...)}", eliminando el problema de
+     escaping de comillas en atributos HTML de inputs.
+   - renderQ() usa DOM API para insertar texto de opciones (anti-XSS).
+   - escHtml() aplicado a datos de rondas en buildRoundChips() y buildDatesEditor().
+   - Datos de usuario escapados en showToast(), buildResultsTable(), buildUsersTable().
+
+4. MANEJO DE ERRORES EN FETCH:
+   - dbRead(): verifica r.ok y lanza Error si el fetch falla, con fallback a
+     localStorage y toast de aviso al usuario.
+   - dbWrite(): verifica r.ok y muestra toast de error si el write a la nube falla.
+
+5. ACTUALIZACIÓN DE UI TRAS CAMBIOS EN ADMIN:
+   - saveDates(): ahora actualiza buildRoundChips() en home-rounds Y dash-rounds.
+   - closeCycle(): actualiza buildAdminPanel(), buildCycleTab(), buildDatesEditor(),
+     home-rounds y dash-rounds tras cerrar el campeonato.
+   - Botón ↻ en ranking ahora llama dbInvalidate() antes de loadRanking().
+
+6. CORRECCIÓN DE BOTONES EN HEADER:
+   - Eliminados atributos style="display:none" duplicados en botones del header
+     (tenían dos atributos style, el segundo sobreescribía el primero).
+
+7. QUIZ:
+   - Q ahora incluye campo questions (pre-cargado async en startQuiz()).
+   - checkAnswer() y nextQ() usan Q.questions en lugar de llamar getQuestions()
+     síncrono, evitando race conditions.
+   - checkAnswer() lee pts del _dbCache directamente (sin async call).
+
+8. MÓVIL:
+   - Tablas dtable responsivas con display:block en mobile usando data-label.
+   - winner-row con flex-wrap:wrap para pantallas pequeñas.
+   - Mejora de breakpoint de 400px a 480px para ajustes generales.
+
+9. INIT:
+   - DOMContentLoaded ahora es async y usa await buildHome() para cargar
+     rondas desde la nube antes de mostrar la pantalla.
+   - showScreen() agrega window.scrollTo(0,0) para volver al top en cada nav.
+
+════════════════════════════════════════════════════════════════
+-->
