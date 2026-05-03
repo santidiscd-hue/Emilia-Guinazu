@@ -480,58 +480,136 @@ tr:hover td{background:rgba(88,166,255,.025);}
 </div>
 
 <!-- ════════ ADMIN PANEL ════════ -->
-<div id="screen-admin" class="screen" style="padding-top:28px;align-items:flex-start;">
-  <div class="admin-wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
-      <div>
-        <div class="sec-title">PANEL ADMIN</div>
-        <div class="sec-sub">Control total del quiz</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="buildAdminPanel()">↻ Refrescar</button>
-        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
-        <button class="btn btn-ghost btn-sm" onclick="showScreen('welcome')">← Salir</button>
-      </div>
-    </div>
+// --- SECCIÓN DE ADMINISTRACIÓN ACTUALIZADA ---
 
-    <!-- TABS -->
-    <div class="admin-tabs">
-      <button class="atab active" onclick="switchAdminTab('overview',this)">📊 Resumen</button>
-      <button class="atab" onclick="switchAdminTab('questions',this)">✏️ Preguntas</button>
-      <button class="atab" onclick="switchAdminTab('dates',this)">📅 Fechas</button>
-      <button class="atab" onclick="switchAdminTab('results',this)">📋 Resultados</button>
-      <button class="atab" onclick="switchAdminTab('cycle',this)">🔄 Ciclo</button>
-      <button class="atab" onclick="switchAdminTab('password',this)">🔐 Contraseña</button>
-    </div>
+async function abrirAdmin() {
+    const pass = prompt("Introduce la contraseña de administrador:");
+    
+    // Validamos la contraseña (por defecto admin123)
+    // En un entorno real, esto se validaría contra el backend
+    if (pass !== 'admin123') {
+        alert("Contraseña incorrecta");
+        return;
+    }
 
-    <!-- TAB: OVERVIEW -->
-    <div class="atab-content active" id="atab-overview">
-      <div id="firebase-config-notice"></div>
-      <div class="admin-grid" id="a-stats"></div>
-      <div class="admin-card" id="a-session-prog"></div>
-      <div class="admin-card">
-        <div class="ac-hdr"><h3>Ranking actual del ciclo</h3></div>
-        <div style="overflow-x:auto;">
-          <table><thead><tr><th>#</th><th>Nombre</th><th>Sesiones</th><th>Correctas</th><th>Pts totales</th></tr></thead>
-          <tbody id="a-rank-tbody"></tbody></table>
-        </div>
-      </div>
-    </div>
+    // Cambiamos la vista al panel de control
+    document.getElementById('home-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    const adminPanel = document.getElementById('admin-panel') || crearPanelAdmin();
+    adminPanel.classList.remove('hidden');
+    
+    await cargarDatosAdmin();
+}
 
-    <!-- TAB: QUESTIONS -->
-    <div class="atab-content" id="atab-questions">
-      <div class="admin-card">
-        <div class="ac-hdr">
-          <h3>Editor de preguntas</h3>
-          <button class="btn btn-green btn-sm" onclick="saveQuestions()">💾 Guardar preguntas</button>
+function crearPanelAdmin() {
+    const panel = document.createElement('div');
+    panel.id = 'admin-panel';
+    panel.className = 'container';
+    panel.innerHTML = `
+        <h2>⚙️ Panel de Control QuizSec</h2>
+        <div class="admin-actions">
+            <button onclick="descargarReporte()" class="btn-secondary">📊 Descargar Excel de Resultados</button>
+            <button onclick="resetearCicloConfirmar()" class="btn-danger">⚠️ Reiniciar Ciclo (Borrar Ranking)</button>
+            <button onclick="cerrarAdmin()" class="btn-primary">Volver al Inicio</button>
         </div>
-        <div class="ac-body">
-          <p style="color:var(--muted);font-size:.83rem;margin-bottom:16px;">Las preguntas se guardan en Firebase y se aplican globalmente. Seleccioná la sesión a editar.</p>
-          <div class="qe-session-tabs" id="qe-tabs"></div>
-          <div id="qe-editor"></div>
+        <div id="admin-stats" class="stats-grid">
+            <!-- Se llena dinámicamente -->
         </div>
-      </div>
-    </div>
+        <div class="ranking-container">
+            <h3>Gestión de Usuarios</h3>
+            <table id="tabla-admin-users">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Puntos</th>
+                        <th>Última Sesión</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="body-admin-users"></tbody>
+            </table>
+        </div>
+    `;
+    document.body.appendChild(panel);
+    return panel;
+}
+
+async function cargarDatosAdmin() {
+    const data = await obtenerDatosNube();
+    const listaUsuarios = data.usuarios || [];
+    const tbody = document.getElementById('body-admin-users');
+    tbody.innerHTML = '';
+
+    listaUsuarios.sort((a, b) => b.puntos - a.puntos).forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${user.nombre}</td>
+            <td>${user.puntos}</td>
+            <td>Sesión ${user.ultimaSesion || 'N/A'}</td>
+            <td><button onclick="eliminarUsuario('${user.nombre}')" class="btn-danger-sm">Eliminar</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function eliminarUsuario(nombre) {
+    if (!confirm(`¿Seguro que quieres eliminar a ${nombre}?`)) return;
+    
+    const data = await obtenerDatosNube();
+    data.usuarios = data.usuarios.filter(u => u.nombre !== nombre);
+    
+    const exito = await guardarDatosNube(data);
+    if (exito) {
+        alert("Usuario eliminado correctamente.");
+        cargarDatosAdmin();
+    }
+}
+
+async function resetearCicloConfirmar() {
+    const confirmar = confirm("¡ATENCIÓN! Esto borrará todos los puntos del ranking actual para comenzar un nuevo ciclo. ¿Proceder?");
+    if (!confirmar) return;
+
+    const data = await obtenerDatosNube();
+    // Guardamos al ganador en el historial antes de borrar (opcional)
+    if (data.usuarios && data.usuarios.length > 0) {
+        const ganador = data.usuarios.sort((a,b) => b.puntos - a.puntos)[0];
+        if (!data.historial) data.historial = [];
+        data.historial.push({
+            fecha: new Date().toLocaleDateString(),
+            ganador: ganador.nombre,
+            puntos: ganador.puntos
+        });
+    }
+
+    // Reseteamos usuarios
+    data.usuarios = [];
+    
+    const exito = await guardarDatosNube(data);
+    if (exito) {
+        alert("Ciclo reiniciado. El ranking está vacío.");
+        cargarDatosAdmin();
+    }
+}
+
+function cerrarAdmin() {
+    document.getElementById('admin-panel').classList.add('hidden');
+    document.getElementById('home-screen').classList.remove('hidden');
+}
+
+function descargarReporte() {
+    obtenerDatosNube().then(data => {
+        let csvContent = "data:text/csv;charset=utf-8,Usuario,Puntos,Ultima Sesion\n";
+        data.usuarios.forEach(u => {
+            csvContent += `${u.nombre},${u.puntos},${u.ultimaSesion}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `reporte_quizsec_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+    });
+}
 
     <!-- TAB: DATES -->
     <div class="atab-content" id="atab-dates">
