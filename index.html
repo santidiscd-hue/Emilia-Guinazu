@@ -2202,3 +2202,62 @@ buildDash = async function() {
 };
 
 })();
+/* ===============================
+   🏆 BOTÓN NUEVO CAMPEONATO (ADMIN)
+================================= */
+
+(function(){
+
+// 1. Agregar botón al panel admin
+const _origBuildAdminPanel = buildAdminPanel;
+
+buildAdminPanel = async function() {
+  await _origBuildAdminPanel();
+
+  setTimeout(() => {
+    const tab = document.getElementById('tab-cycle');
+    if (!tab) return;
+
+    // evitar duplicado
+    if (document.getElementById('btn-new-cycle')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'btn-new-cycle';
+    btn.className = 'btn btn-green';
+    btn.textContent = '➕ Crear nuevo campeonato';
+
+    btn.onclick = createNewCycle;
+
+    tab.prepend(btn);
+  }, 300);
+};
+
+
+// 2. función crear campeonato
+async function createNewCycle() {
+  if (!confirm('¿Crear un nuevo campeonato? Esto NO borra el anterior.')) return;
+
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  const newCycle = (cfg.cycleNum || 1) + 1;
+
+  // avanzar campeonato
+  cfg.cycleNum = newCycle;
+
+  // opcional: duplicar banco de preguntas
+  if (!cfg.questionBank[newCycle]) {
+    const last = cfg.questionBank[cfg.cycleNum - 1];
+    cfg.questionBank[newCycle] = JSON.parse(JSON.stringify(last));
+  }
+
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast('🏆 Nuevo campeonato creado');
+  buildAdminPanel();
+}
+
+})();
