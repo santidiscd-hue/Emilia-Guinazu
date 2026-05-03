@@ -250,15 +250,15 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
     <div class="fade-in">
       <p style="font-size:.75rem;font-weight:600;color:var(--muted2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Proyecto escolar</p>
       <h1 class="pg-title">Pregunta<br>Quiz 🎓</h1>
-      <p class="pg-sub" id="home-subtitle">Respondé 3 preguntas cada Lunes y Miércoles durante 2 semanas. El jugador con más puntos gana el premio el viernes de la segunda semana.</p>
+      <p class="pg-sub" id="home-subtitle">Respondé 2 preguntas cada Lunes y Miércoles durante 2 semanas. El jugador con más puntos gana el premio el viernes de la segunda semana.</p>
       <div class="how-box">
         <h3>📋 ¿Cómo funciona?</h3>
         <ol>
           <li>Creá tu cuenta con nombre y contraseña (solo una vez).</li>
-          <li>Cada Lunes y Miércoles se habilita una ronda nueva con 3 preguntas.</li>
+          <li>Cada Lunes y Miércoles se habilita una ronda nueva con 2 preguntas.</li>
           <li>Podés responder hasta que se abra la ronda siguiente.</li>
           <li>Solo se guarda tu <strong>primera</strong> respuesta por ronda.</li>
-          <li>El viernes de la 2ª semana se declara el campeón con más puntos.</li>
+          <li>El viernes de la 2ª semana se declara el campeón con más puntos. Si hay empate, ¡se elige al azar!</li>
           <li>Luego todo se reinicia y empieza un nuevo campeonato.</li>
         </ol>
       </div>
@@ -435,9 +435,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
         <button class="tab-btn on" onclick="switchTab('overview',this)">Resumen</button>
         <button class="tab-btn" onclick="switchTab('questions',this)">Preguntas</button>
         <button class="tab-btn" onclick="switchTab('dates',this)">Fechas</button>
+        <button class="tab-btn" onclick="switchTab('championships',this)">Campeonatos</button>
         <button class="tab-btn" onclick="switchTab('users',this)">Usuarios</button>
         <button class="tab-btn" onclick="switchTab('results',this)">Resultados</button>
-        <button class="tab-btn" onclick="switchTab('cycle',this)">Campeonato</button>
+        <button class="tab-btn" onclick="switchTab('cycle',this)">Cerrar ciclo</button>
         <button class="tab-btn" onclick="switchTab('settings',this)">Ajustes</button>
       </div>
 
@@ -509,6 +510,38 @@ hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
             <button class="btn btn-red btn-sm" onclick="deleteSelResults()">Eliminar seleccionados</button>
           </div>
           <div style="overflow-x:auto"><table class="dtable"><thead><tr><th><input type="checkbox" id="r-all" onchange="toggleAll('r-chk',this)"></th><th>Nombre</th><th>Ronda</th><th>Correctas</th><th>Pts</th><th>Total</th><th>Fecha</th></tr></thead><tbody id="a-results-body"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- CHAMPIONSHIPS MANAGEMENT -->
+      <div class="tab-pane" id="tab-championships">
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-hdr">
+            <h3>Gestión de Campeonatos</h3>
+            <button class="btn btn-green btn-sm" onclick="createChampionship()">+ Nuevo Campeonato</button>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-blue" style="margin-bottom:14px;font-size:.82rem;">
+              🏆 Aquí podés crear, editar y borrar campeonatos. Cada uno tiene 4 rondas (Lunes y Miércoles, 2 semanas) con 2 preguntas cada una.
+            </div>
+            <div id="champ-list"></div>
+          </div>
+        </div>
+        <!-- Editor de campeonato seleccionado -->
+        <div id="champ-editor" style="display:none;">
+          <div class="card">
+            <div class="card-hdr">
+              <h3 id="champ-editor-title">Editando Campeonato</h3>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-green btn-sm" onclick="saveChampionshipEdit()">💾 Guardar</button>
+                <button class="btn btn-ghost btn-sm" onclick="closeChampEditor()">✕ Cerrar</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="field"><label>Fecha de inicio (Ronda 1 · Lunes)</label><input type="date" id="champ-start-date"></div>
+              <div id="champ-ed-rounds"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -592,29 +625,193 @@ const DEFAULT_ROUNDS = [
   { id:4, label:'Ronda 4', day:'Miércoles', week:2, opens:'2025-05-14' },
 ];
 
+// ════════════════════════════════════════════════════════
+//  ADMIN: GESTIÓN DE CAMPEONATOS
+// ════════════════════════════════════════════════════════
+// Pestaña activa en gestión de campeonatos
+let adminChampTab = 1;
+
 // Banco de preguntas indexado por campeonato (cycleNum)
 // Estructura: { [cycleNum]: { [roundId]: [{q, opts, correct}] } }
 const DEFAULT_QUESTION_BANK = {
   1: {
     1: [
-      { q:'¿Cuál es la unidad básica de la vida?',           opts:['El átomo','La célula','El tejido','El órgano'],           correct:1 },
-      { q:'¿Qué gas produce la fotosíntesis?',               opts:['CO₂','Nitrógeno','Oxígeno','Hidrógeno'],                  correct:2 },
-      { q:'¿Cuántos huesos tiene el cuerpo humano adulto?',  opts:['106','206','306','406'],                                   correct:1 },
+      { q:'¿Cuál es la unidad básica de la vida?', opts:['El átomo','La célula','El tejido','El órgano'], correct:1 },
+      { q:'¿Qué gas produce la fotosíntesis?', opts:['CO₂','Nitrógeno','Oxígeno','Hidrógeno'], correct:2 },
     ],
     2: [
-      { q:'¿En qué año llegó Colón a América?',             opts:['1488','1490','1492','1496'],                               correct:2 },
-      { q:'¿Quién fue el libertador de Argentina?',         opts:['Simón Bolívar','San Martín','Belgrano','Moreno'],          correct:1 },
-      { q:'¿En qué año se declaró la independencia argentina?', opts:['1810','1816','1820','1825'],                           correct:1 },
+      { q:'¿En qué año llegó Colón a América?', opts:['1488','1490','1492','1496'], correct:2 },
+      { q:'¿Quién fue el libertador de Argentina?', opts:['Simón Bolívar','San Martín','Belgrano','Moreno'], correct:1 },
     ],
     3: [
-      { q:'¿Cuánto es la raíz cuadrada de 144?',           opts:['10','11','12','13'],                                       correct:2 },
-      { q:'¿Cuántos grados suma un triángulo?',             opts:['90°','180°','270°','360°'],                                correct:1 },
-      { q:'¿Cuál es el valor aproximado de π?',             opts:['2.14','3.14','4.14','5.14'],                               correct:1 },
+      { q:'¿Cuánto es la raíz cuadrada de 144?', opts:['10','11','12','13'], correct:2 },
+      { q:'¿Cuántos grados suma un triángulo?', opts:['90°','180°','270°','360°'], correct:1 },
     ],
     4: [
-      { q:'¿Cuál es el océano más grande del planeta?',     opts:['Atlántico','Índico','Ártico','Pacífico'],                  correct:3 },
-      { q:'¿En qué continente está Egipto?',                opts:['Asia','Europa','África','Oceanía'],                        correct:2 },
-      { q:'¿Cuál es la capital de Australia?',              opts:['Sidney','Melbourne','Canberra','Brisbane'],                correct:2 },
+      { q:'¿Cuál es el océano más grande del planeta?', opts:['Atlántico','Índico','Ártico','Pacífico'], correct:3 },
+      { q:'¿En qué continente está Egipto?', opts:['Asia','Europa','África','Oceanía'], correct:2 },
+    ],
+  },
+  2: {
+    1: [
+      { q:'¿Cuántos huesos tiene el cuerpo humano adulto?', opts:['106','206','306','406'], correct:1 },
+      { q:'¿Qué órgano bombea la sangre?', opts:['El hígado','Los pulmones','El corazón','El riñón'], correct:2 },
+    ],
+    2: [
+      { q:'¿En qué año se declaró la independencia argentina?', opts:['1810','1816','1820','1825'], correct:1 },
+      { q:'¿Qué batalla fue clave en la independencia del Río de la Plata?', opts:['Maipú','Ayacucho','Chacabuco','Tucumán'], correct:2 },
+    ],
+    3: [
+      { q:'¿Cuál es el valor aproximado de π?', opts:['2.14','3.14','4.14','5.14'], correct:1 },
+      { q:'¿Cuántos lados tiene un hexágono?', opts:['4','5','6','7'], correct:2 },
+    ],
+    4: [
+      { q:'¿Cuál es la capital de Australia?', opts:['Sidney','Melbourne','Canberra','Brisbane'], correct:2 },
+      { q:'¿Cuál es el río más largo del mundo?', opts:['Amazonas','Nilo','Yangtsé','Misisipi'], correct:1 },
+    ],
+  },
+  3: {
+    1: [
+      { q:'¿Qué planeta es conocido como el planeta rojo?', opts:['Venus','Marte','Júpiter','Saturno'], correct:1 },
+      { q:'¿Cuántos planetas tiene el sistema solar?', opts:['7','8','9','10'], correct:1 },
+    ],
+    2: [
+      { q:'¿Cuál fue el primer país en otorgar el voto femenino?', opts:['Francia','Nueva Zelanda','EE.UU.','Argentina'], correct:1 },
+      { q:'¿En qué país ocurrió la Revolución Francesa?', opts:['Inglaterra','Alemania','Francia','Italia'], correct:2 },
+    ],
+    3: [
+      { q:'¿Cuánto es 15% de 200?', opts:['20','25','30','35'], correct:2 },
+      { q:'¿Qué tipo de ángulo mide exactamente 90°?', opts:['Agudo','Recto','Obtuso','Llano'], correct:1 },
+    ],
+    4: [
+      { q:'¿Cuál es la montaña más alta del mundo?', opts:['Aconcagua','Mont Blanc','Kilimanjaro','Everest'], correct:3 },
+      { q:'¿En qué país se encuentra el río Amazonas?', opts:['Colombia','Perú','Brasil','Venezuela'], correct:2 },
+    ],
+  },
+  4: {
+    1: [
+      { q:'¿Cuál es el elemento más abundante en la corteza terrestre?', opts:['Hierro','Silicio','Oxígeno','Aluminio'], correct:2 },
+      { q:'¿Qué tipo de energía tiene un objeto en movimiento?', opts:['Potencial','Térmica','Cinética','Nuclear'], correct:2 },
+    ],
+    2: [
+      { q:'¿Cuándo comenzó la Primera Guerra Mundial?', opts:['1910','1914','1918','1920'], correct:1 },
+      { q:'¿Quién descubrió la penicilina?', opts:['Marie Curie','Louis Pasteur','Alexander Fleming','Isaac Newton'], correct:2 },
+    ],
+    3: [
+      { q:'Si x + 5 = 12, ¿cuánto vale x?', opts:['5','6','7','8'], correct:2 },
+      { q:'¿Cuál es el área de un cuadrado de 6 cm de lado?', opts:['24 cm²','30 cm²','36 cm²','42 cm²'], correct:2 },
+    ],
+    4: [
+      { q:'¿Cuál es el desierto más grande del mundo?', opts:['Sahara','Gobi','Ártico','Antártico'], correct:3 },
+      { q:'¿Cuántos países forman América del Sur?', opts:['10','11','12','13'], correct:2 },
+    ],
+  },
+  5: {
+    1: [
+      { q:'¿Cuál es el símbolo químico del oro?', opts:['Go','Or','Au','Ag'], correct:2 },
+      { q:'¿Qué organela tiene la célula vegetal pero no la animal?', opts:['Mitocondria','Ribosoma','Cloroplasto','Núcleo'], correct:2 },
+    ],
+    2: [
+      { q:'¿En qué año terminó la Segunda Guerra Mundial?', opts:['1943','1944','1945','1946'], correct:2 },
+      { q:'¿Quién escribió el Martín Fierro?', opts:['Leopoldo Lugones','José Hernández','Domingo Sarmiento','Ricardo Güiraldes'], correct:1 },
+    ],
+    3: [
+      { q:'¿Cuánto es 2⁸?', opts:['64','128','256','512'], correct:2 },
+      { q:'¿Cómo se llama la distancia de un punto al centro de una circunferencia?', opts:['Diámetro','Radio','Cuerda','Arco'], correct:1 },
+    ],
+    4: [
+      { q:'¿Qué idioma tiene más hablantes nativos en el mundo?', opts:['Inglés','Hindi','Español','Mandarín'], correct:3 },
+      { q:'¿Cuál es la capital de Japón?', opts:['Seúl','Pekín','Tokio','Bangkok'], correct:2 },
+    ],
+  },
+  6: {
+    1: [
+      { q:'¿Qué tipo de roca se forma por solidificación del magma?', opts:['Sedimentaria','Metamórfica','Ígnea','Calcárea'], correct:2 },
+      { q:'¿Cuántos cromosomas tiene el ser humano?', opts:['23','44','46','48'], correct:2 },
+    ],
+    2: [
+      { q:'¿Qué país fue colonizado por Portugal en América?', opts:['México','Argentina','Brasil','Chile'], correct:2 },
+      { q:'¿Qué tratado puso fin a la Primera Guerra Mundial?', opts:['París','Versalles','Roma','Berlín'], correct:1 },
+    ],
+    3: [
+      { q:'¿Cuánto es la raíz cuadrada de 225?', opts:['13','14','15','16'], correct:2 },
+      { q:'¿Cuántos grados tiene un ángulo llano?', opts:['90°','180°','270°','360°'], correct:1 },
+    ],
+    4: [
+      { q:'¿Cuál es el océano más pequeño del mundo?', opts:['Atlántico','Índico','Ártico','Antártico'], correct:2 },
+      { q:'¿En qué continente está Brasil?', opts:['América del Norte','América Central','América del Sur','Oceanía'], correct:2 },
+    ],
+  },
+  7: {
+    1: [
+      { q:'¿Cuántas patas tiene un insecto?', opts:['4','6','8','10'], correct:1 },
+      { q:'¿Cuál es el proceso por el que las plantas fabrican su alimento?', opts:['Respiración','Fotosíntesis','Digestión','Absorción'], correct:1 },
+    ],
+    2: [
+      { q:'¿Cuál fue la primera nación en enviar un humano al espacio?', opts:['EE.UU.','China','URSS','Francia'], correct:2 },
+      { q:'¿En qué año llegó el hombre a la Luna?', opts:['1965','1967','1969','1971'], correct:2 },
+    ],
+    3: [
+      { q:'¿Cuál es el mínimo común múltiplo de 4 y 6?', opts:['8','12','16','24'], correct:1 },
+      { q:'¿Cuántos vértices tiene un cubo?', opts:['6','8','10','12'], correct:1 },
+    ],
+    4: [
+      { q:'¿Cuál es el país más grande del mundo en superficie?', opts:['Canadá','China','EE.UU.','Rusia'], correct:3 },
+      { q:'¿Qué mar baña las costas de España por el sur?', opts:['Mediterráneo','Cantábrico','Caribe','Rojo'], correct:0 },
+    ],
+  },
+  8: {
+    1: [
+      { q:'¿Cuál es la velocidad de la luz?', opts:['200.000 km/s','300.000 km/s','400.000 km/s','500.000 km/s'], correct:1 },
+      { q:'¿Qué planeta tiene anillos visibles a simple vista?', opts:['Júpiter','Urano','Saturno','Neptuno'], correct:2 },
+    ],
+    2: [
+      { q:'¿Quién pintó La Gioconda?', opts:['Miguel Ángel','Rafael','Leonardo Da Vinci','Botticelli'], correct:2 },
+      { q:'¿En qué siglo vivió Simón Bolívar?', opts:['XVII','XVIII','XIX','XX'], correct:2 },
+    ],
+    3: [
+      { q:'¿Cuánto es 7 × 8?', opts:['54','56','58','60'], correct:1 },
+      { q:'¿Cuántos milímetros hay en un metro?', opts:['10','100','1000','10000'], correct:2 },
+    ],
+    4: [
+      { q:'¿Cuál es la capital de México?', opts:['Guadalajara','Monterrey','Ciudad de México','Puebla'], correct:2 },
+      { q:'¿Qué idioma se habla en Brasil?', opts:['Español','Portugués','Francés','Inglés'], correct:1 },
+    ],
+  },
+  9: {
+    1: [
+      { q:'¿Cuál es la partícula con carga negativa?', opts:['Protón','Neutrón','Electrón','Fotón'], correct:2 },
+      { q:'¿Qué tipo de palanca es una tijera?', opts:['Primera clase','Segunda clase','Tercera clase','No es una palanca'], correct:0 },
+    ],
+    2: [
+      { q:'¿En qué año fue la Revolución de Mayo en Argentina?', opts:['1806','1808','1810','1812'], correct:2 },
+      { q:'¿Qué cargo ocupó San Martín en el cruce de los Andes?', opts:['Almirante','General','Coronel','Presidente'], correct:1 },
+    ],
+    3: [
+      { q:'¿Cuál es el perímetro de un triángulo equilátero de lado 5?', opts:['10','15','20','25'], correct:1 },
+      { q:'¿Cuánto es 3/4 + 1/4?', opts:['1/2','3/4','1','4/4'], correct:2 },
+    ],
+    4: [
+      { q:'¿Cuál es la capital de Canada?', opts:['Toronto','Vancouver','Montreal','Ottawa'], correct:3 },
+      { q:'¿Qué continente tiene más países?', opts:['Asia','Europa','África','América'], correct:2 },
+    ],
+  },
+  10: {
+    1: [
+      { q:'¿Qué vitamina produce el cuerpo con el sol?', opts:['Vitamina A','Vitamina B','Vitamina C','Vitamina D'], correct:3 },
+      { q:'¿Cuántas cámaras tiene el corazón humano?', opts:['2','3','4','5'], correct:2 },
+    ],
+    2: [
+      { q:'¿Quién escribió Don Quijote de la Mancha?', opts:['Lope de Vega','Francisco de Quevedo','Miguel de Cervantes','Calderón de la Barca'], correct:2 },
+      { q:'¿En qué año comenzó la Revolución Industrial?', opts:['1680','1720','1760','1800'], correct:2 },
+    ],
+    3: [
+      { q:'¿Cuántos ceros tiene un millón?', opts:['5','6','7','8'], correct:1 },
+      { q:'¿Cuánto es 12²?', opts:['124','134','144','154'], correct:2 },
+    ],
+    4: [
+      { q:'¿Cuál es la capital de Argentina?', opts:['Córdoba','Rosario','Buenos Aires','Mendoza'], correct:2 },
+      { q:'¿Qué cordillera separa Argentina de Chile?', opts:['Los Andes','El Himalaya','Los Alpes','Los Pirineos'], correct:0 },
     ],
   },
 };
@@ -1029,7 +1226,7 @@ async function buildDash() {
     el.innerHTML = `
       <div class="alert alert-green" style="margin-bottom:14px;">
         <strong>${escHtml(avail.label)} disponible</strong> · ${fmtDate(parseDate(avail.opens))}<br>
-        <span style="font-size:.82rem;">3 preguntas · ${pts} puntos cada una · máx. ${pts * 3} pts</span>
+        <span style="font-size:.82rem;">2 preguntas · ${pts} puntos cada una · máx. ${pts * 2} pts</span>
       </div>
       <button class="btn btn-primary btn-full btn-lg" onclick="startQuiz(false)" style="margin-bottom:10px;">¡Responder ahora! →</button>
       <button class="btn btn-ghost btn-full" onclick="showScreen('ranking')">Ver ranking</button>`;
@@ -1293,12 +1490,13 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('tab-' + name).classList.add('on');
-  if (name === 'questions') buildQEditor(curQTab || 1);
-  if (name === 'dates')     buildDatesEditor();
-  if (name === 'cycle')     buildCycleTab();
-  if (name === 'settings')  buildSettingsTab();
-  if (name === 'users')     buildUsersTable();
-  if (name === 'results')   buildResultsTable();
+  if (name === 'questions')     buildQEditor(curQTab || 1);
+  if (name === 'dates')         buildDatesEditor();
+  if (name === 'cycle')         buildCycleTab();
+  if (name === 'settings')      buildSettingsTab();
+  if (name === 'users')         buildUsersTable();
+  if (name === 'results')       buildResultsTable();
+  if (name === 'championships') buildChampionshipsList();
 }
 
 // ════════════════════════════════════════════════════════
@@ -1348,7 +1546,7 @@ async function buildAdminPanel() {
   });
   const sorted = Object.values(players).sort((a,b) => b.total - a.total);
   document.getElementById('a-rank-body').innerHTML = sorted.map((p,i) =>
-    `<tr><td>${i+1}</td><td><strong>${escHtml(p.name)}</strong></td><td>${p.played}/4</td>
+    `<tr><td>${i+1}</td><td><strong>${escHtml(p.name)}</strong></td><td>${p.played}/${rounds.length}</td>
      <td>${p.correct}/${p.totalQ}</td>
      <td style="font-family:'Roboto Mono',monospace;font-weight:600;">${p.total}</td></tr>`
   ).join('') || '<tr><td colspan="5"><div class="empty">Sin datos.</div></td></tr>';
@@ -1389,7 +1587,6 @@ async function buildQEditor(roundId) {
   // Preguntas del ciclo y ronda seleccionados
   const cycleQs = bank[curQCycle] || bank[cycleNum] || DEFAULT_QUESTION_BANK[1];
   const rQs = cycleQs[roundId] || [
-    {q:'',opts:['','','',''],correct:0},
     {q:'',opts:['','','',''],correct:0},
     {q:'',opts:['','','',''],correct:0},
   ];
@@ -1495,7 +1692,6 @@ async function saveQuestions() {
   // Leer preguntas del formulario
   const cycleQs = bank[curQCycle] || {};
   const roundQsSource = cycleQs[curQTab] || [
-    {q:'',opts:['','','',''],correct:0},
     {q:'',opts:['','','',''],correct:0},
     {q:'',opts:['','','',''],correct:0},
   ];
@@ -1689,10 +1885,16 @@ async function closeCycle() {
   const players  = {};
   results.forEach(r => { players[r.name] = (players[r.name] || 0) + r.score; });
   const sorted   = Object.entries(players).sort((a,b) => b[1] - a[1]);
-  const [winName, winPts] = sorted[0];
+  const topPts   = sorted[0][1];
+  const tied     = sorted.filter(([,pts]) => pts === topPts);
+  const isTie    = tied.length > 1;
+  // Si hay empate, elegir al azar
+  const winner   = tied[Math.floor(Math.random() * tied.length)];
+  const [winName, winPts] = winner;
   const cycleNum = await getCycleNum();
 
-  if (!confirm(`¿Cerrar Campeonato #${cycleNum}?\n\n🏆 Ganador: ${winName} (${winPts} pts)\n\nEsto archivará al ganador, reseteará los puntos y avanzará las fechas 14 días.`)) return;
+  const tieMsg = isTie ? `\n⚡ Empate entre ${tied.map(([n]) => n).join(', ')} — ganador elegido al azar.` : '';
+  if (!confirm(`¿Cerrar Campeonato #${cycleNum}?\n\n🏆 Ganador: ${winName} (${winPts} pts)${tieMsg}\n\nEsto archivará al ganador, reseteará los puntos y avanzará las fechas 14 días.`)) return;
 
   if (!db.config) db.config = {};
 
@@ -1851,6 +2053,189 @@ function startCountdown(elId, target) {
   }
   tick();
   iid = setInterval(tick, 1000);
+}
+
+// ════════════════════════════════════════════════════════
+//  CHAMPIONSHIPS MANAGEMENT (Admin)
+// ════════════════════════════════════════════════════════
+let editingChampCycle = null;
+
+async function buildChampionshipsList() {
+  const cfg      = await getCfg();
+  const bank     = cfg.questionBank || DEFAULT_QUESTION_BANK;
+  const cycleNum = cfg.cycleNum || 1;
+  const cycles   = Object.keys(bank).map(Number).sort((a,b) => a - b);
+  const db       = await dbRead();
+  const hall     = db.hall || [];
+
+  const el = document.getElementById('champ-list');
+  if (!cycles.length) {
+    el.innerHTML = '<div class="empty">Sin campeonatos creados.</div>';
+    return;
+  }
+
+  el.innerHTML = cycles.map(c => {
+    const isCurrent = c === cycleNum;
+    const isPast    = hall.find(h => h.cycle === c);
+    let badge = '';
+    if (isCurrent) badge = '<span class="badge badge-ok">Actual</span>';
+    else if (isPast) badge = '<span class="badge badge-gold">Finalizado</span>';
+    else badge = '<span class="badge badge-mid">Futuro</span>';
+
+    const qs = bank[c] || {};
+    const totalQ = Object.values(qs).reduce((a, arr) => a + (arr?.length || 0), 0);
+
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:'Roboto Mono',monospace;font-size:.88rem;color:var(--muted2);">#${c}</span>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;">Campeonato #${c} ${badge}</div>
+            <div style="font-size:.75rem;color:var(--muted);">${totalQ} preguntas cargadas (${Object.keys(qs).length} rondas)</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-outline btn-sm" onclick="openChampEditor(${c})">✏ Editar</button>
+          ${!isCurrent ? `<button class="btn btn-red btn-sm" onclick="deleteChampionship(${c})">🗑 Borrar</button>` : ''}
+          ${isCurrent ? `<button class="btn btn-primary btn-sm" onclick="setActiveCycle(${c})">★ Activo</button>` : `<button class="btn btn-ghost btn-sm" onclick="setActiveCycle(${c})">Activar</button>`}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function createChampionship() {
+  const cfg       = await getCfg();
+  const bank      = cfg.questionBank || DEFAULT_QUESTION_BANK;
+  const existing  = Object.keys(bank).map(Number).sort((a,b) => a - b);
+  const newCycle  = existing[existing.length - 1] + 1;
+  const lastCycle = existing[existing.length - 1];
+
+  // Crear banco vacío (2 preguntas por ronda)
+  const emptyQ = () => ({q:'',opts:['','','',''],correct:0});
+  bank[newCycle] = {
+    1: [emptyQ(), emptyQ()],
+    2: [emptyQ(), emptyQ()],
+    3: [emptyQ(), emptyQ()],
+    4: [emptyQ(), emptyQ()],
+  };
+
+  const db = await dbRead();
+  if (!db.config) db.config = {};
+  db.config.questionBank = bank;
+  await dbWrite(db);
+  dbInvalidate();
+
+  await buildChampionshipsList();
+  openChampEditor(newCycle);
+  showToast(`✓ Campeonato #${newCycle} creado`);
+}
+
+async function deleteChampionship(cycleN) {
+  const cfg      = await getCfg();
+  const cycleNum = cfg.cycleNum || 1;
+  if (cycleN === cycleNum) { showToast('No podés borrar el campeonato activo'); return; }
+  if (!confirm(`¿Borrar el Campeonato #${cycleN}? Se eliminarán todas sus preguntas.`)) return;
+
+  const bank = cfg.questionBank || DEFAULT_QUESTION_BANK;
+  delete bank[cycleN];
+
+  const db = await dbRead();
+  if (!db.config) db.config = {};
+  db.config.questionBank = bank;
+  await dbWrite(db);
+  dbInvalidate();
+
+  closeChampEditor();
+  await buildChampionshipsList();
+  showToast(`✓ Campeonato #${cycleN} eliminado`);
+}
+
+async function setActiveCycle(cycleN) {
+  if (!confirm(`¿Cambiar el campeonato activo al #${cycleN}? Los resultados actuales permanecen pero se usarán las preguntas de este campeonato.`)) return;
+  const db = await dbRead();
+  if (!db.config) db.config = {};
+  db.config.cycleNum = cycleN;
+  await dbWrite(db);
+  dbInvalidate();
+  await buildChampionshipsList();
+  await buildAdminPanel();
+  showToast(`✓ Campeonato #${cycleN} activado`);
+}
+
+async function openChampEditor(cycleN) {
+  editingChampCycle = cycleN;
+  const cfg  = await getCfg();
+  const bank = cfg.questionBank || DEFAULT_QUESTION_BANK;
+  const qs   = bank[cycleN] || {};
+  const rounds = await getRounds();
+
+  document.getElementById('champ-editor-title').textContent = `Editando Campeonato #${cycleN}`;
+  document.getElementById('champ-editor').style.display = '';
+
+  // Set start date from first round
+  const firstRoundDate = rounds[0]?.opens || '';
+  document.getElementById('champ-start-date').value = firstRoundDate;
+
+  const LTRS = ['A','B','C','D'];
+  let html = '';
+  rounds.forEach(r => {
+    const rQs = qs[r.id] || [{q:'',opts:['','','',''],correct:0},{q:'',opts:['','','',''],correct:0}];
+    html += `<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;">
+      <div class="sec-label" style="margin-bottom:10px;">${escHtml(r.label)} · ${escHtml(r.day)} Semana ${r.week}</div>`;
+    rQs.forEach((q, qi) => {
+      html += `<div class="qe-block">
+        <h4>Pregunta ${qi+1}</h4>
+        <div class="field" style="margin-bottom:10px;">
+          <label>Texto</label>
+          <input type="text" id="ced-q-${r.id}-${qi}" value="${escHtml(q.q)}" placeholder="Escribí la pregunta...">
+        </div>
+        <div class="sec-label" style="margin-bottom:6px;">Opciones · marcá la correcta</div>`;
+      q.opts.forEach((opt, oi) => {
+        html += `<div class="opt-row">
+          <div class="opt-ltr-badge">${LTRS[oi]}</div>
+          <input type="text" id="ced-o-${r.id}-${qi}-${oi}" value="${escHtml(opt)}" placeholder="Opción ${LTRS[oi]}">
+          <input type="radio" class="opt-radio" name="ced-r-${r.id}-${qi}" id="ced-r-${r.id}-${qi}-${oi}" value="${oi}" ${q.correct===oi?'checked':''}>
+          <label for="ced-r-${r.id}-${qi}-${oi}" class="correct-lbl">✓ Correcta</label>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('champ-ed-rounds').innerHTML = html;
+  document.getElementById('champ-editor').scrollIntoView({behavior:'smooth'});
+}
+
+function closeChampEditor() {
+  editingChampCycle = null;
+  document.getElementById('champ-editor').style.display = 'none';
+}
+
+async function saveChampionshipEdit() {
+  if (!editingChampCycle) return;
+  const cfg    = await getCfg();
+  const bank   = cfg.questionBank || DEFAULT_QUESTION_BANK;
+  const rounds = await getRounds();
+  const cycleQs = {};
+
+  rounds.forEach(r => {
+    const rQs = (bank[editingChampCycle]?.[r.id] || [{},{},{}]).map((_, qi) => {
+      const q    = document.getElementById(`ced-q-${r.id}-${qi}`)?.value.trim() || '';
+      const opts = [0,1,2,3].map(oi => document.getElementById(`ced-o-${r.id}-${qi}-${oi}`)?.value.trim() || '');
+      const cr   = document.querySelector(`input[name="ced-r-${r.id}-${qi}"]:checked`);
+      return {q, opts, correct: cr ? parseInt(cr.value) : 0};
+    }).filter((_, qi) => document.getElementById(`ced-q-${r.id}-${qi}`));
+    cycleQs[r.id] = rQs;
+  });
+
+  bank[editingChampCycle] = cycleQs;
+  const db = await dbRead();
+  if (!db.config) db.config = {};
+  db.config.questionBank = bank;
+  await dbWrite(db);
+  dbInvalidate();
+  await buildChampionshipsList();
+  showToast(`✓ Campeonato #${editingChampCycle} guardado`);
 }
 
 // ════════════════════════════════════════════════════════
