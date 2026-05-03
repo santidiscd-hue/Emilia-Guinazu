@@ -1290,3 +1290,78 @@ window.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+
+<script>
+// ══════════════════════════════════════════════
+// 🔥 PATCH: FIX GLOBAL SIN TOCAR EL RESTO
+// ══════════════════════════════════════════════
+
+// 1. FECHAS DINÁMICAS (sobrescribe sesiones viejas)
+(function(){
+  function nextDay(target){
+    const now = new Date();
+    const d = now.getDay();
+    let diff = target - d;
+    if(diff < 0) diff += 7;
+
+    const r = new Date(now);
+    r.setDate(now.getDate() + diff);
+    r.setHours(0,0,0,0);
+    return r.toISOString().split("T")[0];
+  }
+
+  const fixedSessions = [
+    { id:1, label:'Sesión 1', day:'Lunes',     week:1, date:nextDay(1) },
+    { id:2, label:'Sesión 2', day:'Miércoles', week:1, date:nextDay(3) },
+    { id:3, label:'Sesión 3', day:'Lunes',     week:2, date:nextDay(1) },
+    { id:4, label:'Sesión 4', day:'Miércoles', week:2, date:nextDay(3) },
+  ];
+
+  // Sobrescribe lo guardado SI está viejo
+  const stored = JSON.parse(localStorage.getItem('qsp_sessions') || "null");
+
+  if(!stored || stored.every(s => new Date(s.date) < new Date())){
+    localStorage.setItem('qsp_sessions', JSON.stringify(fixedSessions));
+    console.log("✅ PATCH: sesiones actualizadas");
+  }
+})();
+
+
+// 2. FIX RANKING AUTO-REFRESH
+(function(){
+  let interval;
+
+  const originalBuildRanking = window.buildRanking;
+
+  window.buildRanking = function(){
+    if(typeof originalBuildRanking === "function"){
+      originalBuildRanking();
+    }
+
+    clearInterval(interval);
+    interval = setInterval(()=>{
+      const screen = document.getElementById('screen-ranking');
+      if(screen && screen.classList.contains('active')){
+        if(typeof originalBuildRanking === "function"){
+          originalBuildRanking();
+        }
+      }
+    }, 5000);
+  };
+})();
+
+
+// 3. DEBUG: fuerza datos si no hay ranking (para probar)
+(function(){
+  const results = JSON.parse(localStorage.getItem('qsp_results') || "[]");
+
+  if(results.length === 0){
+    localStorage.setItem('qsp_results', JSON.stringify([
+      {name:"Jugador1",sessionId:1,score:300,correct:2,total:2},
+      {name:"Jugador2",sessionId:1,score:150,correct:1,total:2}
+    ]));
+    console.log("🧪 PATCH: datos fake agregados para ranking");
+  }
+})();
+
+</script>
