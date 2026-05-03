@@ -1128,14 +1128,11 @@ async function finishRound() {
 
   if (!already && !Q.practice) {
     if (!db.results) db.results = [];
-    const cycleNum = await getCycleNum();
-
-db.results.push({
-  name: user.name,
-  cycle: cycleNum, // 👈 PARCHE CLAVE
-  roundId: Q.round.id,
-  roundLabel: Q.round.label,
-  score: Q.score,
+    db.results.push({
+      name:       user.name,
+      roundId:    Q.round.id,
+      roundLabel: Q.round.label,
+      score:      Q.score,
       correct:    Q.correct,
       total:      Q.questions.length,
       date:       new Date().toLocaleDateString('es-AR'),
@@ -2000,3 +1997,208 @@ EXTRA — Race condition en dbRead:
 EXTRA — deleteSelUsers ahora también usa la nube (antes solo localStorage).
 ════════════════════════════════════════════════════════════════
 -->
+
+/* ===============================
+   🔥 PARCHE MULTI-CAMPEONATO v1
+   Pegar al FINAL del archivo
+================================= */
+
+(function(){
+
+// Helper seguro para obtener ciclo actual
+async function _getCycleSafe() {
+  try { return await getCycleNum(); }
+  catch { return 1; }
+}
+
+/* ===============================
+   🧠 OVERRIDE finishRound
+================================= */
+const _origFinishRound = finishRound;
+
+finishRound = async function() {
+  const user = getCurUser();
+  const db   = await dbRead();
+  const cycleNum = await _getCycleSafe();
+
+  const already = (db.results || []).some(
+    r => r.name === user.name &&
+         r.roundId === Q.round.id &&
+         r.cycle === cycleNum
+  );
+
+  if (!already && !Q.practice) {
+    if (!db.results) db.results = [];
+
+    db.results.push({
+      name:       user.name,
+      cycle:      cycleNum, // 👈 clave
+      roundId:    Q.round.id,
+      roundLabel: Q.round.label,
+      score:      Q.score,
+      correct:    Q.correct,
+      total:      Q.questions.length,
+      date:       new Date().toLocaleDateString('es-AR'),
+      ts:         Date.now(),
+    });
+
+    await dbWrite(db);
+    dbInvalidate();
+  }
+
+  const db2 = await dbRead();
+
+  const myTotal = (db2.results || [])
+    .filter(r => r.name === user.name && r.cycle === cycleNum)
+    .reduce((a,r) => a + r.score, 0);
+
+  const total = Q.questions.length;
+  const pct   = Q.correct / total;
+
+  document.getElementById('r-emoji').textContent  = pct === 1 ? '🏆' : pct >= .67 ? '🎉' : '💪';
+  document.getElementById('r-title').textContent  = pct === 1 ? '¡Perfecto!' : pct >= .67 ? '¡Bien hecho!' : '¡Seguí practicando!';
+  document.getElementById('r-msg').textContent    = already
+    ? 'Ya habías respondido esta ronda — resultado no guardado.'
+    : Q.practice
+      ? 'Modo práctica — resultado no guardado.'
+      : `Acertaste ${Q.correct} de ${total}.`;
+
+  document.getElementById('r-pts-sess').textContent  = Q.score + ' pts';
+  document.getElementById('r-pts-total').textContent = myTotal + ' pts';
+
+  showScreen('result');
+};
+
+
+/* ===============================
+   🏆 OVERRIDE Ranking
+================================= */
+const _origLoadRanking = loadRanking;
+
+loadRanking = async function() {
+  const cycleNum = await _getCycleSafe();
+  const db = await dbRead();
+
+  const results = (db.results || []).filter(r => r.cycle === cycleNum);
+
+  if (!results.length) {
+    document.getElementById('rank-card').innerHTML =
+      `<div class="empty"><span class="empty-i">📭</span>No hay datos aún</div>`;
+    return;
+  }
+
+  const ranking = {};
+
+  results.forEach(r => {
+    if (!ranking[r.name]) {
+      ranking[r.name] = {
+        name: r.name,
+        pts: 0,
+        rounds: 0,
+        correct: 0
+      };
+    }
+    ranking[r.name].pts     += r.score;
+    ranking[r.name].rounds  += 1;
+    ranking[r.name].correct += r.correct;
+  });
+
+  const sorted = Object.values(ranking)
+    .sort((a,b) => b.pts - a.pts);
+
+  let html = `
+    <table class="rtable">
+      <thead>
+        <tr><th>#</th><th>Jugador</th><th>Puntos</th></tr>
+      </thead>
+      <tbody>
+  `;
+
+  sorted.forEach((p,i) => {
+    html += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${p.name}</td>
+        <td class="pts-cell">${p.pts}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+
+  document.getElementById('rank-card').innerHTML = html;
+};
+
+
+/* ===============================
+   🔄 OVERRIDE closeCycle
+================================= */
+const _origCloseCycle = closeCycle;
+
+closeCycle = async function() {
+  const db  = await dbRead();
+  const cfg = await getCfg();
+  const cycleNum = cfg.cycleNum;
+
+  const results = (db.results || []).filter(r => r.cycle === cycleNum);
+
+  if (!results.length) {
+    showToast('No hay resultados');
+    return;
+  }
+
+  const ranking = {};
+  results.forEach(r => {
+    ranking[r.name] = (ranking[r.name] || 0) + r.score;
+  });
+
+  const winner = Object.entries(ranking)
+    .sort((a,b) => b[1] - a[1])[0];
+
+  if (!db.hall) db.hall = [];
+
+  db.hall.push({
+    cycle: cycleNum,
+    name: winner[0],
+    points: winner[1],
+    date: new Date().toLocaleDateString('es-AR')
+  });
+
+  // avanzar campeonato
+  cfg.cycleNum += 1;
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast('✔ Nuevo campeonato iniciado');
+};
+
+
+/* ===============================
+   🧠 OVERRIDE Dashboard fix
+================================= */
+const _origBuildDash = buildDash;
+
+buildDash = async function() {
+  await _origBuildDash();
+
+  const user = getCurUser();
+  if (!user) return;
+
+  const db = await dbRead();
+  const cycleNum = await _getCycleSafe();
+
+  const results = (db.results || []);
+
+  const myTotal = results
+    .filter(r => r.name === user.name && r.cycle === cycleNum)
+    .reduce((a,r) => a + r.score, 0);
+
+  const el = document.getElementById('dash-sub');
+  if (el) {
+    el.textContent = `Campeonato #${cycleNum} · ${myTotal} puntos`;
+  }
+};
+
+})();
