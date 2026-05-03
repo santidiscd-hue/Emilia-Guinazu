@@ -76,6 +76,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:14p
 .s-chip .sc-date{font-size:.7rem;color:var(--muted);margin-bottom:6px;}
 .s-chip .sc-pill{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:50px;}
 .pill-open{background:rgba(63,185,80,.18);color:var(--green);}
+.pill-avail{background:rgba(227,179,65,.18);color:var(--yellow);}
 .pill-done{background:rgba(139,148,158,.1);color:var(--muted);}
 .pill-next{background:rgba(88,166,255,.12);color:var(--accent);}
 
@@ -312,10 +313,32 @@ tr:hover td{background:rgba(88,166,255,.025);}
   <div class="hero">
     <div class="eyebrow">⚡ Multijugador · Lunes &amp; Miércoles</div>
     <h1>EL QUIZ<br><em>ACADÉMICO</em></h1>
-    <p>Respondé 2 preguntas cada Lunes y Miércoles.<br>Cada 2 semanas el ganador se lleva el premio 🏆</p>
+    <p>Respondé 3 preguntas cada Lunes y Miércoles.<br>¡El mejor de 4 sesiones gana el ciclo cada 2 semanas! 🏆</p>
   </div>
   <div id="w-cycle-badge"></div>
   <div class="schedule-grid" id="w-schedule"></div>
+  <!-- Instrucciones siempre visibles -->
+  <div class="how-box" style="background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px 22px;width:100%;max-width:580px;margin-bottom:20px;">
+    <div style="font-family:var(--ff-display);font-size:1.25rem;letter-spacing:1px;margin-bottom:14px;color:var(--accent);">📖 ¿CÓMO PARTICIPAR?</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">1</div>
+        <div style="font-size:.88rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--text);">Creá tu usuario</strong> — la primera vez ingresás tu nombre y elegís una contraseña. Eso es tu cuenta para siempre.</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">2</div>
+        <div style="font-size:.88rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--text);">Respondé cuando quieras</strong> — cada sesión abre el día indicado (Lunes o Miércoles) y podés responderla hasta que abra la siguiente. ¡No se cierra enseguida!</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">3</div>
+        <div style="font-size:.88rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--text);">Un intento por sesión</strong> — tu primer resultado es el que cuenta. Podés reintentar pero no sobrescribe tu puntaje.</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(88,166,255,.15);border:1px solid rgba(88,166,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-size:.72rem;font-weight:700;color:var(--accent);flex-shrink:0;margin-top:1px;">4</div>
+        <div style="font-size:.88rem;color:var(--muted);line-height:1.5;"><strong style="color:var(--text);">4 sesiones = 1 ciclo</strong> — el ganador es quien acumule más puntos en las 4 sesiones (2 semanas). ¡Usá siempre el mismo usuario!</div>
+      </div>
+    </div>
+  </div>
   <div id="w-content"></div>
 </div>
 
@@ -387,6 +410,47 @@ tr:hover td{background:rgba(88,166,255,.025);}
   </div>
 </div>
 
+<!-- ════════ USER LOGIN ════════ -->
+<div id="screen-user-login" class="screen" style="padding-top:60px;">
+  <div style="width:100%;max-width:420px;">
+    <div style="font-family:var(--ff-display);font-size:2rem;letter-spacing:2px;margin-bottom:6px;text-align:center;">INGRESAR AL JUEGO</div>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:20px;text-align:center;line-height:1.6;">
+      Usá <strong style="color:var(--text);">siempre el mismo usuario</strong> para acumular puntos entre sesiones.
+    </p>
+
+    <div style="display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:20px;" id="login-tabs">
+      <button id="tab-login-btn"    style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--card);color:var(--text);border:1px solid var(--border2);font-family:var(--ff-body);font-size:.85rem;font-weight:700;cursor:pointer;" onclick="switchLoginTab('login',this)">Ya tengo usuario</button>
+      <button id="tab-register-btn" style="flex:1;padding:9px;border-radius:8px;border:none;background:transparent;color:var(--muted);font-family:var(--ff-body);font-size:.85rem;font-weight:700;cursor:pointer;" onclick="switchLoginTab('register',this)">Crear usuario nuevo</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form" class="form-card" style="animation:none;">
+      <div class="notice notice-blue" style="margin-bottom:18px;">🔑 Ingresá con tu usuario ya creado para seguir acumulando puntos.</div>
+      <label class="fl">Tu nombre de usuario</label>
+      <input class="fi" id="li-name" type="text" placeholder="Ej: Valentina García" maxlength="30" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      <label class="fl">Tu contraseña</label>
+      <input class="fi" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <div id="li-err" class="notice notice-red" style="display:none;"></div>
+      <button class="btn btn-green btn-full btn-lg" onclick="doLogin()">Ingresar →</button>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:14px;text-align:center;">¿Primera vez? Usá la pestaña <strong style="color:var(--text);">"Crear usuario nuevo"</strong>.</p>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" class="form-card" style="display:none;animation:none;">
+      <div class="notice notice-green" style="margin-bottom:18px;">✨ Creá tu usuario una sola vez y úsalo siempre para acumular puntos.</div>
+      <label class="fl">Elegí un nombre de usuario</label>
+      <input class="fi" id="reg-name" type="text" placeholder="Ej: Valentina García" maxlength="30" autocomplete="username" onkeydown="if(event.key==='Enter')doRegister()">
+      <label class="fl">Elegí una contraseña (mínimo 4 caracteres)</label>
+      <input class="fi" id="reg-pass" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+      <label class="fl">Confirmá la contraseña</label>
+      <input class="fi" id="reg-pass2" type="password" placeholder="Repetí tu contraseña" autocomplete="new-password" onkeydown="if(event.key==='Enter')doRegister()">
+      <div id="reg-err" class="notice notice-red" style="display:none;"></div>
+      <button class="btn btn-green btn-full btn-lg" onclick="doRegister()">Crear usuario →</button>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:14px;text-align:center;">¿Ya tenés usuario? Usá la pestaña <strong style="color:var(--text);">"Ya tengo usuario"</strong>.</p>
+    </div>
+  </div>
+</div>
+
 <!-- ════════ ADMIN LOGIN ════════ -->
 <div id="screen-admin-login" class="screen" style="padding-top:80px;">
   <div class="form-card">
@@ -420,6 +484,7 @@ tr:hover td{background:rgba(88,166,255,.025);}
       <button class="atab" onclick="switchAdminTab('questions',this)">✏️ Preguntas</button>
       <button class="atab" onclick="switchAdminTab('dates',this)">📅 Fechas</button>
       <button class="atab" onclick="switchAdminTab('results',this)">📋 Resultados</button>
+      <button class="atab" onclick="switchAdminTab('users',this)">👥 Usuarios</button>
       <button class="atab" onclick="switchAdminTab('cycle',this)">🔄 Ciclo</button>
       <button class="atab" onclick="switchAdminTab('settings',this)">⚙️ Config</button>
     </div>
@@ -510,6 +575,30 @@ tr:hover td{background:rgba(88,166,255,.025);}
       </div>
     </div>
 
+    <!-- TAB: USERS -->
+    <div class="atab-content" id="atab-users">
+      <div class="admin-card">
+        <div class="ac-hdr">
+          <h3>Usuarios registrados</h3>
+          <button class="btn btn-danger btn-sm" onclick="deleteSelectedUsers()">🗑 Borrar seleccionados</button>
+        </div>
+        <div class="ac-body">
+          <p style="color:var(--muted);font-size:.83rem;margin-bottom:16px;">Lista de todos los usuarios que crearon cuenta. Para resetear una contraseña, eliminá al usuario y pedile que se registre de nuevo.</p>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="chk-users-all" onchange="toggleAllUsers(this)" style="cursor:pointer;"></th>
+                  <th>Usuario</th><th>Registrado</th><th>Sesiones jugadas</th><th>Puntos ciclo</th>
+                </tr>
+              </thead>
+              <tbody id="a-users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- TAB: CYCLE -->
     <div class="atab-content" id="atab-cycle">
       <div class="admin-card">
@@ -590,23 +679,28 @@ const DEFAULT_SESSIONS = [
   { id:3, label:'Sesión 3', day:'Lunes',     date:'2025-05-12' },
   { id:4, label:'Sesión 4', day:'Miércoles', date:'2025-05-14' },
 ];
+// 4 sesiones = 1 ciclo (2 semanas). Ganador el viernes de la semana 2.
 
 const DEFAULT_QUESTIONS = {
   1:[
     { q:'¿Cuál es la unidad básica de la vida?', opts:['El átomo','La célula','El tejido','El órgano'], correct:1 },
-    { q:'¿Qué gas es fundamental para la fotosíntesis?', opts:['Oxígeno','Nitrógeno','Dióxido de carbono','Helio'], correct:2 }
+    { q:'¿Qué gas es fundamental para la fotosíntesis?', opts:['Oxígeno','Nitrógeno','Dióxido de carbono','Helio'], correct:2 },
+    { q:'¿Cuántos cromosomas tiene una célula humana?', opts:['23','44','46','48'], correct:2 }
   ],
   2:[
     { q:'¿En qué año llegó Colón a América?', opts:['1488','1490','1492','1496'], correct:2 },
-    { q:'¿Cuál fue el primer país independiente de América Latina?', opts:['Argentina','México','Haití','Brasil'], correct:2 }
+    { q:'¿Cuál fue el primer país independiente de América Latina?', opts:['Argentina','México','Haití','Brasil'], correct:2 },
+    { q:'¿Quién fue el primer presidente de Argentina?', opts:['Mitre','San Martín','Rivadavia','Roca'], correct:2 }
   ],
   3:[
     { q:'¿Cuánto es la raíz cuadrada de 144?', opts:['10','11','12','13'], correct:2 },
-    { q:'¿Cuántos grados tiene un triángulo?', opts:['90°','180°','270°','360°'], correct:1 }
+    { q:'¿Cuántos grados tiene un triángulo?', opts:['90°','180°','270°','360°'], correct:1 },
+    { q:'¿Cuántos lados tiene un hexágono?', opts:['4','5','6','7'], correct:2 }
   ],
   4:[
     { q:'¿Cuál es el océano más grande?', opts:['Atlántico','Índico','Ártico','Pacífico'], correct:3 },
-    { q:'¿En qué continente está Egipto?', opts:['Asia','Europa','África','Oceanía'], correct:2 }
+    { q:'¿En qué continente está Egipto?', opts:['Asia','Europa','África','Oceanía'], correct:2 },
+    { q:'¿Cuál es la capital de Australia?', opts:['Sídney','Melbourne','Brisbane','Canberra'], correct:3 }
   ]
 };
 
@@ -667,6 +761,7 @@ function getCycleNum()  { return dbGet('config/cycleNum')  || 1; }
 function getHall()      { return dbGet('config/hall')      || []; }
 function getPTS()       { return dbGet('config/pts')       || PTS_PER_CORRECT; }
 function getEventTitle(){ return dbGet('config/eventTitle') || 'EL QUIZ ACADÉMICO'; }
+function getUsers()     { return dbGet('users') || {}; }
 
 // ─── SAVE HELPERS ───
 async function saveResults(results) {
@@ -679,6 +774,11 @@ async function saveResults(results) {
 async function saveCfg(key, val) {
   if (!_db.config) _db.config = {};
   _db.config[key] = val;
+  await jbWrite(_db);
+}
+
+async function saveUsers(users) {
+  _db.users = users;
   await jbWrite(_db);
 }
 
@@ -710,6 +810,7 @@ async function initApp() {
     if (!dbGet('config/cycleNum'))  await saveCfg('cycleNum',  1);
     if (!dbGet('config/password'))  await saveCfg('password',  DEFAULT_PASSWORD);
     if (!dbGet('config/pts'))       await saveCfg('pts',       150);
+    if (!dbGet('users'))            { _db.users = {}; await jbWrite(_db); }
 
     _dbReady = true;
     document.getElementById('db-loader').classList.add('hidden');
@@ -734,6 +835,7 @@ async function initApp() {
     if (!_db.config.cycleNum)  _db.config.cycleNum  = 1;
     if (!_db.config.password)  _db.config.password  = DEFAULT_PASSWORD;
     if (!_db.config.pts)       _db.config.pts       = 150;
+    if (!_db.users)            _db.users            = {};
     _dbReady = true;
     document.getElementById('db-loader').classList.add('hidden');
     startClock();
@@ -757,16 +859,40 @@ function todayDate() {
   if (_dateOverride) return new Date(_dateOverride);
   const t = new Date(); t.setHours(0, 0, 0, 0); return t;
 }
-function sessionStatus(s) {
+/**
+ * VENTANA AMPLIA:
+ * - 'upcoming': sesión no abierta aún
+ * - 'available': sesión abierta (desde su fecha hasta que abra la siguiente)
+ * - 'done': ya abrió la sesión posterior
+ * La última sesión queda disponible hasta que el admin cierre el ciclo.
+ */
+function sessionWindowStatus(s, allSessions) {
   const today = todayDate();
   const sd = parseDate(s.date);
-  const nd = new Date(sd); nd.setDate(nd.getDate() + 1);
   if (today < sd) return 'upcoming';
-  if (today >= sd && today < nd) return 'open';
-  return 'done';
+  const sortedSessions = [...allSessions].sort((a,b) => parseDate(a.date) - parseDate(b.date));
+  const myIndex = sortedSessions.findIndex(x => x.id === s.id);
+  const nextSession = sortedSessions[myIndex + 1];
+  if (nextSession) {
+    const nextOpen = parseDate(nextSession.date);
+    if (today < nextOpen) return 'available';
+    return 'done';
+  }
+  return 'available'; // última sesión — el admin cierra
 }
-function getActiveSession()  { return getSessions().find(s => sessionStatus(s) === 'open')     || null; }
-function getNextSession()    { return getSessions().find(s => sessionStatus(s) === 'upcoming') || null; }
+// Compatibilidad
+function sessionStatus(s) { return sessionWindowStatus(s, getSessions()); }
+function getActiveSession()  {
+  const sessions = getSessions();
+  const available = sessions.filter(s => sessionWindowStatus(s, sessions) === 'available');
+  if (!available.length) return null;
+  return available.sort((a,b) => parseDate(b.date) - parseDate(a.date))[0];
+}
+function getNextSession()    { 
+  const sessions = getSessions();
+  const sorted = [...sessions].sort((a,b) => parseDate(a.date) - parseDate(b.date));
+  return sorted.find(s => sessionWindowStatus(s, sessions) === 'upcoming') || null;
+}
 function hasPlayed(name, sessionId) {
   return getResults().some(r => r.name.toLowerCase().trim() === name.toLowerCase().trim() && r.sessionId === sessionId);
 }
@@ -820,7 +946,7 @@ function buildWelcome() {
   const sessions = getSessions();
   const active = getActiveSession();
   const next = getNextSession();
-  const allDone = sessions.every(s => sessionStatus(s) === 'done');
+  const allDone = sessions.every(s => sessionWindowStatus(s, sessions) === 'done');
   const cycleNum = getCycleNum();
 
   document.getElementById('w-cycle-badge').innerHTML =
@@ -832,11 +958,11 @@ function buildWelcome() {
     const st = sessionStatus(s);
     const d = parseDate(s.date);
     let pillTxt, pillCls;
-    if (st === 'open')     { pillTxt = 'ABIERTO'; pillCls = 'pill-open'; }
+    if (st === 'available'){ pillTxt = 'ABIERTO'; pillCls = 'pill-open'; }
     else if (st === 'done'){ pillTxt = 'Cerrado'; pillCls = 'pill-done'; }
     else                   { pillTxt = 'Próximo'; pillCls = 'pill-next'; }
     const chip = document.createElement('div');
-    chip.className = 's-chip' + (st === 'open' ? ' open' : '') + (st === 'done' ? ' done' : '');
+    chip.className = 's-chip' + (st === 'available' ? ' open' : '') + (st === 'done' ? ' done' : '');
     chip.innerHTML = `<div class="sc-num">Ses. ${s.id}</div>
       <div class="sc-day">${s.day}</div>
       <div class="sc-date">${fmtDateShort(d)}</div>
@@ -863,7 +989,7 @@ function buildWelcome() {
     wrap.innerHTML = `<div class="locked-card">
       <span class="li">🔒</span>
       <h2>Hoy no hay sesión</h2>
-      <p>Las encuestas se abren automáticamente cada <strong>Lunes</strong> y <strong>Miércoles</strong>.</p>
+      <p>Las sesiones se abren cada <strong>Lunes</strong> y <strong>Miércoles</strong>. Una vez abierta, podés responderla hasta que abra la siguiente.</p>
       ${nd ? `<div class="cd-box"><div class="cd-lbl">Próxima sesión en</div><div class="cd-val" id="cd-v">--</div></div>` : ''}
       ${nd ? `<div class="next-box">📅 ${fmtDate(nd)}</div>` : ''}
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
@@ -875,26 +1001,16 @@ function buildWelcome() {
     return;
   }
 
+  const active = getActiveSession();
   wrap.innerHTML = `<div class="form-card">
-    <div class="notice notice-green">🟢 <strong>${active.label}</strong> — ${fmtDate(parseDate(active.date))}</div>
-    <div class="time-row" id="live-time"></div>
-    <label class="fl">Tu nombre</label>
-    <input class="fi" id="w-name" type="text" placeholder="Ej: Valentina García" maxlength="30"
-           onkeydown="if(event.key==='Enter')tryStart()">
-    <div id="w-played-msg"></div>
-    <button class="btn btn-green btn-full btn-lg" onclick="tryStart()">Jugar ahora →</button>
+    <div class="notice notice-green">🟢 <strong>${active.label}</strong> — disponible hasta la próxima sesión</div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5;">Ingresá con tu usuario para jugar. Si es tu primera vez, <strong style="color:var(--text);">creá un usuario nuevo</strong>.</p>
+    <button class="btn btn-green btn-full btn-lg" onclick="goToPlay()">Ingresar y jugar →</button>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('ranking')">🏆 Ranking</button>
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('hall')">🎖 Campeones</button>
+    </div>
   </div>`;
-
-  tickTime();
-  _tickTimeInterval = setInterval(tickTime, 1000);
-
-  document.getElementById('w-name').addEventListener('input', function() {
-    const n = this.value.trim();
-    const msg = document.getElementById('w-played-msg');
-    if (n.length > 1 && hasPlayed(n, active.id)) {
-      msg.innerHTML = `<div class="notice notice-yellow">⚠ Ya jugaste esta sesión. Tu primer resultado está guardado.</div>`;
-    } else { msg.innerHTML = ''; }
-  });
 }
 
 function tickTime() {
@@ -924,20 +1040,84 @@ function startCountdown(target) {
 }
 
 // ══════════════════════════════════════════════
-// QUIZ
+// SISTEMA DE USUARIOS
 // ══════════════════════════════════════════════
-let state = { playerName:'', currentSession:null, currentQ:0, sessionScore:0, correctCount:0, answered:false };
 
-function tryStart() {
-  const name = document.getElementById('w-name').value.trim();
-  if (!name) { showToast('⚠ Ingresá tu nombre'); return; }
+function switchLoginTab(tab, btn) {
+  document.getElementById('tab-login-btn').style.background = tab==='login' ? 'var(--card)' : 'transparent';
+  document.getElementById('tab-login-btn').style.color = tab==='login' ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('tab-login-btn').style.border = tab==='login' ? '1px solid var(--border2)' : 'none';
+  document.getElementById('tab-register-btn').style.background = tab==='register' ? 'var(--card)' : 'transparent';
+  document.getElementById('tab-register-btn').style.color = tab==='register' ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('tab-register-btn').style.border = tab==='register' ? '1px solid var(--border2)' : 'none';
+  document.getElementById('login-form').style.display    = tab === 'login'    ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function normalizeUsername(name) { return name.toLowerCase().trim(); }
+
+async function doLogin() {
+  try { _db = await jbRead(); } catch(e) {}
+  const name = document.getElementById('li-name').value.trim();
+  const pass = document.getElementById('li-pass').value;
+  const errEl = document.getElementById('li-err');
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = '⚠ Ingresá tu nombre de usuario.'; errEl.style.display='block'; return; }
+  if (!pass) { errEl.textContent = '⚠ Ingresá tu contraseña.'; errEl.style.display='block'; return; }
+  const users = getUsers();
+  const key = normalizeUsername(name);
+  if (!users[key]) { errEl.textContent = '⚠ Usuario no encontrado. ¿Primera vez? Usá "Crear usuario nuevo".'; errEl.style.display='block'; return; }
+  if (users[key].pass !== pass) { errEl.textContent = '✗ Contraseña incorrecta.'; errEl.style.display='block'; return; }
+  document.getElementById('li-name').value = '';
+  document.getElementById('li-pass').value = '';
+  state.playerName = users[key].displayName;
+  tryStartFromLoggedUser();
+}
+
+async function doRegister() {
+  try { _db = await jbRead(); } catch(e) {}
+  const name  = document.getElementById('reg-name').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const errEl = document.getElementById('reg-err');
+  errEl.style.display = 'none';
+  if (!name)           { errEl.textContent = '⚠ Ingresá un nombre de usuario.'; errEl.style.display='block'; return; }
+  if (name.length < 2) { errEl.textContent = '⚠ El nombre debe tener al menos 2 caracteres.'; errEl.style.display='block'; return; }
+  if (pass.length < 4) { errEl.textContent = '⚠ La contraseña debe tener al menos 4 caracteres.'; errEl.style.display='block'; return; }
+  if (pass !== pass2)  { errEl.textContent = '✗ Las contraseñas no coinciden.'; errEl.style.display='block'; return; }
+  const users = getUsers();
+  const key = normalizeUsername(name);
+  if (users[key]) { errEl.textContent = '⚠ Ese nombre ya existe. Elegí otro o ingresá con tu cuenta.'; errEl.style.display='block'; return; }
+  users[key] = { displayName: name, pass: pass, createdAt: new Date().toLocaleDateString('es-AR') };
+  try {
+    await saveUsers(users);
+    document.getElementById('reg-name').value = '';
+    document.getElementById('reg-pass').value = '';
+    document.getElementById('reg-pass2').value = '';
+    state.playerName = name;
+    showToast(`✓ Usuario "${name}" creado. ¡Bienvenido!`);
+    tryStartFromLoggedUser();
+  } catch(e) { errEl.textContent = '⚠ Error al guardar. Intentá de nuevo.'; errEl.style.display='block'; }
+}
+
+function goToPlay() {
+  if (state.playerName) { tryStartFromLoggedUser(); }
+  else { showScreen('user-login'); }
+}
+
+function tryStartFromLoggedUser() {
+  const name = state.playerName;
+  if (!name) { showScreen('user-login'); return; }
   const active = getActiveSession();
-  if (!active) { showToast('No hay sesión activa'); return; }
+  if (!active) { showToast('No hay sesión activa'); showScreen('welcome'); return; }
   const qs = getQuestions()[active.id] || [];
   if (!qs.length) { showToast('⚠ Esta sesión no tiene preguntas configuradas'); return; }
-
+  if (hasPlayed(name, active.id)) {
+    showScreen('ranking');
+    showToast(`Ya jugaste la ${active.label}. Tu puntaje está guardado.`);
+    return;
+  }
   state = { playerName:name, currentSession:active, currentQ:0, sessionScore:0, correctCount:0, answered:false };
-
   const av = document.getElementById('q-av');
   av.textContent = name[0].toUpperCase();
   av.style.background = avatarGrad(name);
@@ -945,6 +1125,16 @@ function tryStart() {
   document.getElementById('q-stag').textContent = active.label;
   showScreen('quiz');
   renderQ();
+}
+
+// ══════════════════════════════════════════════
+// QUIZ
+// ══════════════════════════════════════════════
+let state = { playerName:'', currentSession:null, currentQ:0, sessionScore:0, correctCount:0, answered:false };
+
+function tryStart() {
+  // Legacy — now uses tryStartFromLoggedUser via goToPlay
+  goToPlay();
 }
 
 function renderQ() {
@@ -1063,7 +1253,7 @@ function _buildRankingUI() {
     players[r.name].played++;
   });
   const sorted = Object.values(players).sort((a, b) => b.total - a.total);
-  const maxPts = sessions.length * 2 * getPTS();
+  const maxPts = sessions.length * 3 * getPTS();
 
   document.getElementById('rank-sum').innerHTML = `
     <div class="sum-card"><div class="sum-val">${sorted.length}</div><div class="sum-lbl">Jugadores</div></div>
@@ -1180,6 +1370,7 @@ function switchAdminTab(name, btn) {
   if (name === 'cycle')     buildCycleTab();
   if (name === 'settings')  buildSettingsTab();
   if (name === 'results')   buildResultsTable();
+  if (name === 'users')     buildUsersTable();
 }
 
 async function refreshAdmin() {
@@ -1203,13 +1394,14 @@ function buildAdminPanel() {
   const perfect = results.filter(r => r.correct === r.total).length;
   const sessions = getSessions();
 
+  const userCount = Object.keys(getUsers()).length;
   document.getElementById('a-stats').innerHTML = `
-    <div class="astat"><div class="as-val">${players}</div><div class="as-lbl">Jugadores</div></div>
+    <div class="astat"><div class="as-val">${userCount}</div><div class="as-lbl">Usuarios reg.</div></div>
+    <div class="astat"><div class="as-val">${players}</div><div class="as-lbl">Jugadores activos</div></div>
     <div class="astat"><div class="as-val">${results.length}</div><div class="as-lbl">Participaciones</div></div>
     <div class="astat"><div class="as-val">${avg}</div><div class="as-lbl">Promedio pts</div></div>
     <div class="astat"><div class="as-val">${perfect}</div><div class="as-lbl">Perfectos</div></div>
-    <div class="astat"><div class="as-val">${getCycleNum()}</div><div class="as-lbl">Ciclo actual</div></div>
-    <div class="astat"><div class="as-val">${getPTS()}</div><div class="as-lbl">Pts/pregunta</div></div>`;
+    <div class="astat"><div class="as-val">${getCycleNum()}</div><div class="as-lbl">Ciclo actual</div></div>`;
 
   const counts = {};
   sessions.forEach(s => counts[s.id] = results.filter(r => r.sessionId === s.id).length);
@@ -1219,7 +1411,7 @@ function buildAdminPanel() {
     sessions.map(s => {
       const st = sessionStatus(s);
       let pillT, pillC;
-      if (st === 'open')     { pillT='ABIERTA'; pillC='pill-open'; }
+      if (st === 'available'){ pillT='ABIERTA'; pillC='pill-open'; }
       else if (st === 'done'){ pillT='Cerrada'; pillC='pill-done'; }
       else                   { pillT='Próxima'; pillC='pill-next'; }
       return `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);">
@@ -1481,6 +1673,46 @@ async function removeLastSession() {
   await saveCfg('sessions', sessions);
   buildDatesEditor();
   showToast('✓ Última sesión eliminada');
+}
+
+// ══════════════════════════════════════════════
+// USERS TABLE (ADMIN)
+// ══════════════════════════════════════════════
+let _sortedUsers = [];
+
+function buildUsersTable() {
+  const users = getUsers();
+  const results = getResults();
+  const playerStats = {};
+  results.forEach(r => {
+    const k = r.name.toLowerCase().trim();
+    if (!playerStats[k]) playerStats[k] = { played:0, total:0 };
+    playerStats[k].played++; playerStats[k].total += r.score;
+  });
+  _sortedUsers = Object.entries(users).map(([key, u]) => ({
+    key, displayName: u.displayName, createdAt: u.createdAt || '—',
+    played: playerStats[key]?.played || 0, total: playerStats[key]?.total || 0
+  })).sort((a,b) => b.total - a.total);
+  document.getElementById('a-users-tbody').innerHTML = _sortedUsers.map((u, i) =>
+    `<tr>
+      <td><input type="checkbox" class="user-chk" data-idx="${i}" style="cursor:pointer;"></td>
+      <td><strong>${escHtml(u.displayName)}</strong></td>
+      <td style="color:var(--muted);font-size:.8rem;">${u.createdAt}</td>
+      <td style="font-family:var(--ff-mono);">${u.played}</td>
+      <td style="font-family:var(--ff-mono);font-weight:700;color:var(--accent);">${u.total}</td>
+    </tr>`
+  ).join('') || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px;">Sin usuarios registrados.</td></tr>`;
+}
+function toggleAllUsers(chk) { document.querySelectorAll('.user-chk').forEach(c => c.checked = chk.checked); }
+async function deleteSelectedUsers() {
+  const checked = [...document.querySelectorAll('.user-chk:checked')].map(c => parseInt(c.dataset.idx));
+  if (!checked.length) { showToast('⚠ Seleccioná al menos un usuario'); return; }
+  if (!confirm(`¿Eliminar ${checked.length} usuario(s)?`)) return;
+  const users = getUsers();
+  checked.forEach(i => { delete users[_sortedUsers[i].key]; });
+  await saveUsers(users);
+  buildUsersTable();
+  showToast(`✓ ${checked.length} usuario(s) eliminado(s)`);
 }
 
 // ══════════════════════════════════════════════
