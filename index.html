@@ -2267,6 +2267,115 @@ async function createNewCycle() {
 
   showToast(`🏆 Campeonato #${newCycle} creado`);
   buildAdminPanel();
+  /* ===============================
+   🏆 ADMIN CAMPEONATOS (CREAR + ELIMINAR)
+================================= */
+
+(function(){
+
+const _origBuildAdminPanel = buildAdminPanel;
+
+buildAdminPanel = async function() {
+  await _origBuildAdminPanel();
+
+  setTimeout(() => {
+    const tab = document.getElementById('tab-cycle');
+    if (!tab) return;
+
+    // evitar duplicados
+    if (document.getElementById('champ-controls')) return;
+
+    const box = document.createElement('div');
+    box.id = 'champ-controls';
+    box.style.display = 'flex';
+    box.style.gap = '10px';
+    box.style.marginBottom = '10px';
+
+    // ➕ crear campeonato
+    const btnNew = document.createElement('button');
+    btnNew.textContent = '➕ Nuevo campeonato';
+    btnNew.className = 'btn btn-green';
+    btnNew.onclick = createNewCycle;
+
+    // ❌ eliminar campeonato actual
+    const btnDel = document.createElement('button');
+    btnDel.textContent = '🗑 Eliminar campeonato actual';
+    btnDel.className = 'btn btn-red';
+    btnDel.onclick = deleteCurrentCycle;
+
+    box.appendChild(btnNew);
+    box.appendChild(btnDel);
+
+    tab.prepend(box);
+  }, 300);
+};
+
+
+// =============================
+// ➕ CREAR CAMPEONATO
+// =============================
+async function createNewCycle() {
+  if (!confirm('¿Crear un nuevo campeonato?')) return;
+
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  if (!cfg.questionBank) cfg.questionBank = {};
+
+  const oldCycle = cfg.cycleNum || 1;
+  const newCycle = oldCycle + 1;
+
+  // copiar preguntas
+  if (cfg.questionBank[oldCycle]) {
+    cfg.questionBank[newCycle] =
+      JSON.parse(JSON.stringify(cfg.questionBank[oldCycle]));
+  } else {
+    cfg.questionBank[newCycle] = {};
+  }
+
+  cfg.cycleNum = newCycle;
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast(`🏆 Campeonato #${newCycle} creado`);
+  buildAdminPanel();
+}
+
+
+// =============================
+// ❌ ELIMINAR CAMPEONATO
+// =============================
+async function deleteCurrentCycle() {
+  if (!confirm('⚠️ Esto eliminará TODOS los datos del campeonato actual. ¿Seguro?')) return;
+
+  const db  = await dbRead();
+  const cfg = await getCfg();
+
+  const cycle = cfg.cycleNum;
+
+  // borrar resultados de ese campeonato
+  db.results = (db.results || []).filter(r => r.cycle !== cycle);
+
+  // borrar preguntas de ese campeonato
+  if (cfg.questionBank && cfg.questionBank[cycle]) {
+    delete cfg.questionBank[cycle];
+  }
+
+  // bajar al campeonato anterior (si existe)
+  cfg.cycleNum = Math.max(1, cycle - 1);
+
+  db.config = cfg;
+
+  await dbWrite(db);
+  dbInvalidate();
+
+  showToast('🗑 Campeonato eliminado');
+  buildAdminPanel();
+}
+
+})();
 }
 
 })();
